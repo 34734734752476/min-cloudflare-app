@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="nn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e3325">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="styles.css?v=sundsteigen-fieldwork-20261009-v4">
+<style>
+@media(max-width:900px){nav.bottom-nav{display:none!important;visibility:hidden!important;pointer-events:none!important}}
+body.mobile-layout nav.bottom-nav{display:none!important;visibility:hidden!important;pointer-events:none!important}
+</style>
+<title>Sundsteigen Gård · Sauehald</title>
+</head>
+<body class="redesign-2026">
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">🐑 SAUEHALD</div>
+    <h2>Sundsteigen Gård</h2>
+    <p>Logg inn for å bruke gårdsappen.</p>
+    <form id="authForm">
+      <label for="authEmail">E-post</label><input id="authEmail" type="email" autocomplete="email" required placeholder="namn@epost.no">
+      <label for="authPassword">Passord</label><input id="authPassword" type="password" autocomplete="current-password" required placeholder="Passord">
+      <button class="auth-button" type="submit">Logg inn</button>
+      <div id="authError" class="auth-error"></div>
+      <div class="auth-hint">🔐 Berre brukarar som er oppretta i Supabase kan logge inn.</div>
+    </form>
+  </div>
+</div>
+
+<div id="accountModal" class="account-modal" aria-hidden="true"><div class="account-backdrop" onclick="closeAccount()"></div><div class="account-sheet"><div class="account-head"><div><small>KONTO</small><h3>Sundsteigen Gård</h3></div><button class="account-close" onclick="closeAccount()">×</button></div><div class="account-user"><div class="account-avatar" data-icon="user"></div><div><strong id="accountName">–</strong><div class="muted" id="accountEmail">–</div></div></div><button id="accountLogoutButton" class="secondary account-logout">🚪 Logg ut</button></div></div>
+
+<div id="searchModal" class="modal search-modal" aria-hidden="true"><div class="modal-backdrop" onclick="closeGlobalSearch()"></div><div class="search-sheet"><div class="search-head"><div><div class="subtle">GLOBALT SØK</div><h2 data-i18n="search_everything">Søk i appen</h2></div><button class="account-close" onclick="closeGlobalSearch()">×</button></div><div class="global-search-box"><span data-icon="search"></span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="Søk etter dyr, oppgåver, paringar, dyrestell …"><button class="secondary" onclick="clearGlobalSearch()">Tøm</button></div><div id="globalSearchResults" class="global-search-results"><div class="empty-large">🔎 Skriv noko for å søkje.</div></div></div></div>
+
+<div id="animalModal" class="modal" aria-hidden="true"><div class="modal-backdrop" onclick="closeAnimalModal()"></div><div class="modal-sheet"><div class="card-head"><div><div class="subtle">DYREPROFIL</div><h2 id="animalModalTitle" style="margin:3px 0 0">–</h2></div><button class="account-close" onclick="closeAnimalModal()">×</button></div><div id="animalModalBody" class="activity" style="margin-top:15px"></div></div></div>
+<div id="animalEditModal" class="modal" aria-hidden="true"><div class="modal-backdrop" onclick="closeAnimalEdit()"></div><div class="modal-sheet animal-edit-sheet"><div class="card-head"><div><div class="subtle">REDIGER DYREPROFIL</div><h2 id="animalEditTitle" style="margin:3px 0 0">–</h2></div><button class="account-close" onclick="closeAnimalEdit()">×</button></div><form id="animalEditForm" class="form two-col" style="margin-top:15px"><input type="hidden" id="editAnimalId"><label>Individnummer<input id="editIndividnummer" required></label><label>Øyremerke<input id="editOyremerke"></label><label>Kjønn<select id="editKjonn"><option value="søye">Saulam</option><option value="vær">Vêrlam</option><option value="lam">Lam</option></select></label><label id="editEweGroupWrap">Dyregruppe<select id="editDyregruppe"><option value="">Vel dyregruppe...</option><option value="saulam">Saulam</option><option value="vêrlam">Vêrlam</option><option value="jømber">Jømber</option><option value="vaksen-søye">Vaksen-søye</option><option value="ung-søye">Ung-søye</option><option value="ung-vær">Ung-vær</option><option value="vaksen-vær">Vaksen-vær</option></select></label><label>Fødselsdato<input id="editFodselsdato" type="date"></label><label>Rase<input id="editRase"></label><label>Mor (individnummer)<input id="editMorText"></label><label>Far (individnummer)<input id="editFarText"></label><label>Fødselsvekt (kg)<input id="editFodselsvekt" type="number" min="0" step="0.01"></label><label>Øyreklippe<input id="editOyrekllype"></label><label>Status<select id="editStatus" required><option>Livlam</option><option>Aktiv i avl</option><option>Paring</option><option>Drektig</option><option>Kåra vær</option><option>Avlsvær</option><option>Død</option><option>Slaktet</option></select></label><label class="full-field">Notat<textarea id="editNotat" rows="4"></textarea></label><div class="edit-form-actions"><button type="button" class="secondary" onclick="closeAnimalEdit()">Avbryt</button><button type="submit" class="primary">💾 Lagre endringar</button></div></form></div></div>
+
+<header class="topbar"><button class="brand brand-home" type="button" onclick="openPage('dashboard')" aria-label="Gå til Heim"><div class="brand-mark farm-logo-mark"><img src="farm-logo.png" alt="" decoding="async"></div><div><div class="eyebrow">SAUEHALD</div><h1>Sundsteigen Gård</h1></div></button><div class="topbar-actions"><button class="top-action search-top" onclick="openGlobalSearch()" aria-label="Søk"><span data-icon="search"></span><span data-i18n="search">Søk</span></button><button class="top-action settings-top" onclick="openPage('settings')" aria-label="Opne innstillingar" title="Innstillingar"><span data-icon="settings"></span><span data-i18n="settings">Innstillingar</span></button><button class="more-btn" onclick="openPage('more')"><span data-icon="menu"></span><span data-i18n="more">Meir</span></button><button class="profile" id="profileButton" aria-label="Opne konto"><span data-icon="user"></span> <span data-i18n="account">Konto</span></button></div></header>
+
+<main>
+<div id="syncStatus" class="sync-status" role="status" aria-live="polite" hidden></div>
+<section id="dashboard" class="page active dashboard-page">
+  <section class="home-welcome">
+    <div class="home-welcome-copy"><div class="home-brand-lockup"><span class="home-brand-mark"><img src="farm-logo.png" alt="" decoding="async"></span><span><strong>Sundsteigen Gård</strong><small>SAUEHALD</small></span></div><h2>God dag, <span id="homeGreetingName">deg</span>.</h2><p>Godt å sjå deg. Kva skal gjerast i fjøset?</p></div>
+    <div class="dash-date" id="today"></div>
+  </section>
+
+  <form class="home-animal-search" role="search" onsubmit="event.preventDefault();findAnimalFromHome()">
+    <span data-icon="search"></span><input id="homeAnimalSearch" type="search" placeholder="Søk etter dyr eller individnummer" aria-label="Søk etter dyr frå heimskjermen"><button type="submit">Finn dyr</button>
+  </form>
+
+  <section class="home-action-row" aria-label="Snarvegar">
+    <button class="home-action-primary" onclick="openPage('lambing')"><span class="home-action-icon" data-icon="lamb"></span><span class="home-action-copy"><small>RASK REGISTRERING</small><strong>Registrer lamming</strong><em>Mor, lam og lammekode</em></span><span class="home-action-arrow">→</span></button>
+  </section>
+
+  <div class="home-overview-row">
+  <section class="home-herd card">
+    <div class="home-section-heading"><div><span class="home-kicker">STATUS</span><h3>Besetninga di</h3></div><button class="text-link" onclick="openPage('animals')">Sjå alle <span aria-hidden="true">→</span></button></div>
+    <button class="home-herd-total" onclick="openPage('animals')"><span class="home-herd-icon" data-icon="sheep"></span><span><strong id="totalAnimals">0</strong><small>aktive dyr totalt</small></span><span class="panel-arrow">→</span></button>
+    <div class="home-herd-counts">
+      <button onclick="openPage('animals')"><small>Søyer</small><strong id="ewes">0</strong></button>
+      <button onclick="openPage('animals')"><small>Værer</small><strong id="rams">0</strong></button>
+      <button onclick="openPage('animals')"><small>Lam</small><strong id="lambs">0</strong></button>
+    </div>
+  </section>
+
+  <button class="home-next-lambing" onclick="openPage('lambing')"><span class="home-next-icon" data-icon="calendar"></span><span class="home-next-copy"><small>NESTE TERMIN</small><strong id="dashNextLambingName">Ingen termin i oversikta</strong><em id="dashNextLambingDate">–</em></span><span class="panel-arrow">→</span></button>
+  </div>
+
+  <section class="home-tasks card">
+    <div class="home-section-heading"><div><span class="home-kicker">DAGENS PLAN</span><h3>Gjeremål <span class="home-task-count" id="homeTaskCount">0 opne</span></h3></div><button class="text-link" onclick="openPage('tasks')">Alle <span aria-hidden="true">→</span></button></div>
+    <div id="todayTasks" class="task-preview"></div>
+  </section>
+
+  <section class="home-shortcuts card">
+    <div class="home-section-heading"><div><span class="home-kicker">VANLEGE OPPGÅVER</span><h3>Snarvegar</h3></div></div>
+    <div class="home-shortcut-grid">
+      <button class="shortcut-create" onclick="openPage('new-animal')"><span data-icon="plus"></span><b>Nytt dyr</b><small>Registrer individ</small></button>
+      <button class="shortcut-lambing" onclick="openPage('lambing')"><span data-icon="lamb"></span><b>Lamming</b><small>Mor og lam</small></button>
+      <button class="shortcut-care" onclick="openPage('logs')"><span data-icon="stethoscope"></span><b>Dyrestell</b><small>Dagleg logg</small></button>
+      <button class="shortcut-health" onclick="openPage('health')"><span data-icon="heart"></span><b>Helse</b><small>Behandlingar</small></button>
+      <button class="shortcut-pasture" onclick="openPage('pasture')"><span data-icon="leaf"></span><b>Beite</b><small>Jordlappar</small></button>
+      <button class="shortcut-stock" onclick="openPage('supplies')"><span data-icon="warehouse"></span><b>Lager</b><small>Fôr og utstyr</small></button>
+    </div>
+  </section>
+
+  <details class="home-expand card">
+    <summary><span class="home-expand-icon" data-icon="clipboard"></span><span><strong>Fleire funksjonar</strong><small>Plan, beite, lager, adopsjon og meir</small></span><span class="panel-arrow">⌄</span></summary>
+    <div class="drift-links">
+      <button onclick="openPage('planning')"><span data-icon="calendar"></span>Plan</button><button onclick="openPage('pasture')"><span data-icon="leaf"></span>Beite</button><button onclick="openPage('diary')"><span data-icon="book"></span>Dagbok</button><button onclick="openPage('supplies')"><span data-icon="warehouse"></span>Lager</button><button onclick="openPage('slaughter')"><span data-icon="truck"></span>Slakt</button><button onclick="openPage('adoption')"><span data-icon="family"></span>Adopsjon <i id="dashAdoptionCount">0</i></button><button onclick="openPage('statistics')"><span data-icon="chart"></span>Statistikk</button><button onclick="openPage('settings')"><span data-icon="settings"></span>Innstillingar</button>
+    </div>
+  </details>
+
+  <details class="home-expand home-activity card">
+    <summary><span class="home-expand-icon" data-icon="calendar"></span><span><strong>Siste aktivitet</strong><small>Nylege registreringar på garden</small></span><span class="panel-arrow">⌄</span></summary>
+    <div id="activityFeed" class="activity-feed-clean"></div>
+  </details>
+</section>
+<section id="animals" class="page"><div class="page-title"><div><h2>Besetning</h2><p class="muted">Heile besetninga blir vist samla. Bruk søk og filter for å finne dyra du treng.</p></div><button class="primary" onclick="openPage('new-animal')">＋ Nytt dyr</button></div><div id="animalSummary" class="overview-strip"></div><div class="toolbar animal-toolbar"><div class="animal-search-wrap"><input class="search" id="animalSearch" aria-label="Søk etter dyr" placeholder="Søk på individnummer …" oninput="animalPage=1;renderAnimals()"></div><select id="animalFilter" aria-label="Filtrer dyr" onchange="animalPage=1;renderAnimals()"><option value="all">Alle dyr</option><option value="søye">Søyer</option><option value="vær">Værer</option><option value="lam">Lam</option></select></div><div id="animalList" class="animal-list"></div></section>
+
+<section id="new-animal" class="page"><div class="page-title"><div><h2>Nytt dyr</h2><p class="muted">Registrer eit dyr i besetninga.</p></div></div><form id="animalForm" class="card form two-col">
+<label>Individnummer<input id="individnummer" required placeholder="t.d. 24015"></label><label>Øyremerke<input id="oyremerke" placeholder="t.d. NO 123456789"></label>
+<label>Kjønn<select id="kjonn"><option value="søye">Søye</option><option value="vær">Vær</option><option value="lam">Lam</option></select></label><label id="eweGroupWrap">Dyregruppe<select id="dyregruppe"><option value="">Vel dyregruppe...</option><option value="saulam">Saulam</option><option value="vêrlam">Vêrlam</option><option value="jømber">Jømber</option><option value="vaksen-søye">Vaksen-søye</option><option value="ung-søye">Ung-søye</option><option value="ung-vær">Ung-vær</option><option value="vaksen-vær">Vaksen-vær</option></select><small class="field-help">Bruk gruppa for å skilje lam, jømber og vaksne dyr.</small></label><label>Fødselsdato<input id="fodselsdato" type="date"></label>
+<label>Rase<input id="rase" placeholder="t.d. NKS"></label><label>Fødselsvekt (kg)<input id="fodselsvekt" type="number" step="0.1" min="0"></label>
+<label>Mor – individnummer<input id="morText" placeholder="valfritt"></label><label>Far – individnummer<input id="farText" placeholder="valfritt"></label>
+<label>Øyreklipp<input id="oyreklype" placeholder="Beskriving"></label><label>Status<select id="status" required><option value="">Vel status …</option><option>Livlam</option><option>Aktiv i avl</option><option>Paring</option><option>Drektig</option><option>Kåra vær</option><option>Avlsvær</option><option>Død</option><option>Slaktet</option></select></label>
+<label class="full">Notat<textarea id="notat" rows="4" placeholder="Eventuelle merknader..."></textarea></label>
+<div class="full"><button class="primary wide" type="submit">💾 Lagre dyr</button><button class="secondary wide" type="button" onclick="openPage('animals')">Avbryt</button></div></form></section>
+
+<section id="logs" class="page"><div class="page-title"><div><h2>Dyrestell</h2><p class="muted">Registrer kva som vart gjort og kven som gjorde det.</p></div></div><div id="logSummary" class="overview-strip"></div><form id="logForm" class="card form">
+<div class="logged-user"><span>👤</span><div><small>LOGGA INN SOM</small><strong id="logUser">–</strong></div></div>
+<div class="grid2"><label>Dato<input id="logDate" type="date" required></label><label>Type stell<select id="logType"><option>Fôring</option><option>Tilsyn</option><option>Klauvstell</option><option>Medisin</option><option>Flytting</option><option>Veiing</option><option>Reingjering</option><option>Annet</option></select></label></div>
+<label>Individnummer (valfritt)<input id="logAnimal" placeholder="t.d. 24015"></label><label>Merknad<textarea id="logNote" rows="4" required placeholder="Skriv kva du gjorde, og eventuelle observasjonar..."></textarea></label><button class="primary wide" type="submit">＋ Registrer dyrestell</button></form>
+<div class="card"><div class="card-head"><div><h3>Stellogg</h3><div class="muted">Nyaste registreringar øvst.</div></div><div class="log-filters"><input class="mini-search" id="logSearch" placeholder="Søk..." oninput="renderLogs()"><select id="logTypeFilter" onchange="renderLogs()"><option value="all">Alle typar</option><option>Fôring</option><option>Tilsyn</option><option>Klauvstell</option><option>Medisin</option><option>Flytting</option><option>Veiing</option><option>Reingjering</option><option>Annet</option></select></div></div><div id="logList" class="log-list"></div></div></section>
+
+<section id="lambing" class="page"><div class="page-title"><div><h2>Lamming</h2><p class="muted">Registrer lamming og få kontroll på mora og lamma.</p></div></div><form id="lambForm" class="card form lambing-form">
+<div class="lambing-form-head"><span data-icon="lamb"></span><div><h3>Registrer lamming</h3><div class="subtle">Registrer fødselsforløp, jurstatus og alle lamma samla.</div></div></div><div class="lamb-main-fields"><label><span class="mating-label"><span class="field-icon" data-icon="ewe"></span><span>Mor – søye</span></span><select id="lambMother" name="lambMother" required><option value="">Vel søye frå besetninga …</option></select><small class="field-help">Berre aktive søyer frå besetninga blir viste.</small></label><label><span class="mating-label"><span class="field-icon" data-icon="calendar"></span><span>Dato</span></span><input id="lambDate" type="date" required></label></div><div class="lamb-secondary-fields"><label><span class="mating-label"><span class="field-icon" data-icon="lamb"></span><span>Tal på nyfødde lam</span></span><span class="lamb-count-control"><button type="button" onclick="adjustLambCount(-1)" aria-label="Færre lam">−</button><input id="lambCount" type="number" min="1" max="8" value="1" required onchange="renderLambFields()"><button type="button" onclick="adjustLambCount(1)" aria-label="Fleire lam">＋</button></span><small class="field-help">Vel talet – registrer alle i same skjema.</small></label><label><span class="mating-label"><span class="field-icon" data-icon="heart"></span><span>Fødselsforløp</span></span><select id="birthProcess" required><option>Normal</option><option>Lett hjelp</option><option>Vanskeleg</option></select></label><label><span class="mating-label"><span class="field-icon" data-icon="stethoscope"></span><span>Jurstatus</span></span><select id="udderStatus" required><option>OK</option><option>Tette spenar</option><option>Mastitt</option><option>Store spenar</option></select></label><label><span class="mating-label"><span class="field-icon" data-icon="clipboard"></span><span>Lammekode</span></span><select id="lambCode"><option value="">Vel lammekode …</option><option>uten hjelp</option><option>med hjelp ikkje feilstilling</option><option>med hjelp feilstilling</option><option>tom</option><option>kastet</option><option>ukjent lammingsforløp</option><option>ikkje para - avlsdyr</option><option>ikkje para - skal slaktes</option><option>tenkt para - brunstmangel</option></select></label></div><div id="lambFields"></div><div class="lamb-lower-fields"><label><span class="mating-label"><span class="field-icon" data-icon="note"></span><span>Merknad</span></span><textarea id="lambNote" rows="2" placeholder="T.d. hjelp ved fødsel, jur eller observasjonar …"></textarea></label><div class="lamb-submit-wrap"><button class="primary wide" type="submit">＋ Registrer lamming</button></div></div></form>
+<div id="lambSummary" class="overview-strip"></div><div class="card"><div class="card-head"><div><h3>Lammeliste</h3><div class="muted">Alle registrerte lammingar, med mora og kvart lam samla.</div></div><span class="badge" id="lambTotal">0 registrerte lammingar</span></div><div id="lambList" class="lamb-list"></div></div></section>
+
+<section id="more" class="page"><div class="page-title"><div><h2>Drift og planlegging</h2><p class="muted">Alt det som skjer rundt besetninga – samla på ein stad.</p></div></div><div class="module-grid"><div class="module-card" onclick="openPage('planning')"><div class="module-icon" data-icon="calendar"></div><h3>Plan og avtalar</h3><p>Dyrlege, klippar, slaktebil og andre avtalar.</p><div class="module-stat" id="morePlanCount">0 planlagde</div></div><div class="module-card" onclick="openPage('mating')"><div class="module-icon" data-icon="ram"></div><h3>Paring</h3><p>Registrer kva søyer kvar vær har para med.</p><div class="module-stat" id="moreMatingCount">0 paringar</div></div><div class="module-card" onclick="openPage('slaughter')"><div class="module-icon" data-icon="truck"></div><h3>Til slakt</h3><p>Oversikt over dyr som skal sendast til slakt.</p><div class="module-stat" id="moreSlaughterCount">0 dyr</div></div><div class="module-card" onclick="openPage('logs')"><div class="module-icon" data-icon="stethoscope"></div><h3>Dyrestell</h3><p>Stell, behandlingar og observasjonar.</p></div><div class="module-card" onclick="openPage('lambing')"><div class="module-icon" data-icon="lamb"></div><h3>Lamming</h3><p>Registrer lamming og bygg opp lammelista.</p></div><div class="module-card" onclick="openPage('tasks')"><div class="module-icon" data-icon="check-square"></div><h3>Gjøremål</h3><p>Planlegg og fordel arbeidet på garden.</p></div><div class="module-card" onclick="openPage('health')"><div class="module-icon" data-icon="heart"></div><h3>Helse</h3><p>Vaksinar, ormekur, behandlingar, sjukdom og dyrlege.</p><div class="module-stat" id="moreHealthCount">0 registreringar</div></div><div class="module-card" onclick="openPage('weights')"><div class="module-icon" data-icon="scale"></div><h3>Vekter</h3><p>Følg vekst og tilvekst på kvart enkelt dyr.</p><div class="module-stat" id="moreWeightCount">0 vegingar</div></div><div class="module-card" onclick="openPage('pasture')"><div class="module-icon" data-icon="leaf"></div><h3>Beite & jordlappar</h3><p>Lag eigne jordlappar og registrer flytting av flokken.</p><div class="module-stat" id="morePastureCount">0 jordlappar</div></div><div class="module-card" onclick="openPage('diary')"><div class="module-icon" data-icon="book"></div><h3>Gardsdagbok</h3><p>Skriv ned viktige hendingar frå garden.</p><div class="module-stat" id="moreDiaryCount">0 notat</div></div><div class="module-card" onclick="openPage('supplies')"><div class="module-icon" data-icon="warehouse"></div><h3>Innkjøp & lager</h3><p>Kraftfôr, saltstein, rundballar og prisoversikt.</p><div class="module-stat" id="moreSupplyCount">0 varer</div></div><div class="module-card" onclick="openPage('statistics')"><div class="module-icon" data-icon="chart"></div><h3>Statistikk & avl</h3><p>Få oversikt over besetning, vekter, helse og paring.</p></div><div class="module-card" onclick="openPage('adoption')"><div class="module-icon" data-icon="family"></div><h3>Adopsjon av lam</h3><p>Registrer når eit lam får ny mor, og hald styr på biologisk og adoptiv mor.</p><div class="module-stat" id="moreAdoptionCount">0 adopsjonar</div></div><div class="module-card settings-module" onclick="openPage('settings')"><div class="module-icon" data-icon="settings"></div><h3 data-i18n="settings">Innstillingar</h3><p data-i18n="settings_desc">Tilpass utsjånad, språk og korleis appen fungerer på telefon og PC.</p><div class="module-stat" id="settingsSummary">Standardoppsett</div></div></div></section>
+
+<section id="planning" class="page"><div class="page-title"><div><h2>Plan og avtalar</h2><p class="muted">Registrer besøk og ting som skal skje på garden.</p></div></div><div class="section-note">💡 Bruk denne sida til å notere når dyrlegen kjem, når klippinga er, når lam skal sendast på slakt, eller andre avtalar.</div><form id="planningForm" class="card form"><div class="grid2"><label>Type avtale<select id="planType"><option>Dyrlege</option><option>Klipping</option><option>Sende lam på slakt</option><option>Anna</option></select></label><label>Dato<input id="planDate" type="date" required></label></div><div class="grid2"><label>Klokkeslett<input id="planTime" type="time"></label><label>Kven / firma<input id="planContact" placeholder="t.d. Kvinnherad veterinærvakt"></label></div><label>Merknad<textarea id="planNote" rows="3" placeholder="Kva skal gjerast, kva dyr gjeld det, eller annan viktig informasjon..."></textarea></label><button class="primary wide" type="submit">＋ Lagre avtale</button></form><div class="card"><div class="card-head"><h3>Planlagde avtalar</h3><span class="badge" id="planTotal">0</span></div><div id="planList" class="list"></div></div></section>
+
+<section id="mating" class="page"><div class="page-title"><div><h2><span class="title-icon" data-icon="mating"></span> Paring</h2><p class="muted">Full kontroll på første, andre og tredje paring – med automatisk berekna antatt termin.</p></div></div><div class="section-note"><span class="title-icon small" data-icon="calendar"></span> <strong>Termin:</strong> Appen bereknar automatisk 147 dagar frå registrert paringsdato. Dette er ein fast og konsekvent berekning, men biologisk termin kan variere frå søye til søye.</div><form id="matingForm" class="card form"><div class="grid2"><label><span class="mating-label"><span class="field-icon" data-icon="ram"></span><span>Vær</span></span><select id="matingRam" required></select></label><label><span class="mating-label"><span class="field-icon" data-icon="sheep"></span><span>Søye</span></span><select id="matingEwe" required></select></label></div><div class="grid2"><label><span class="mating-label"><span class="field-icon" data-icon="mating"></span><span>Paringsrunde</span></span><select id="matingRound" required><option value="1">1. paring</option><option value="2">2. paring</option><option value="3">3. paring</option><option value="4">4. paring</option></select></label><label><span class="mating-label"><span class="field-icon" data-icon="calendar"></span><span>Paringsdato</span></span><input id="matingDate" type="date" required></label></div><div id="matingDuePreview" class="due-preview">🍼 Antatt termin: <strong>–</strong></div><label><span class="mating-label"><span class="field-icon" data-icon="note"></span><span>Merknad</span></span><input id="matingNote" placeholder="T.d. sett saman 1. gong / observert paring"></label><button class="primary wide" type="submit"><span class="button-icon" data-icon="mating"></span> Registrer paring</button></form><div id="matingSummary" class="overview-strip"></div><div class="card"><div class="card-head"><div><h3><span class="title-icon small" data-icon="clipboard"></span> Paringsoversikt</h3><div class="muted">Kvar vær står samla, med 1., 2., 3. og 4. paring under.</div></div><select id="matingFilter" onchange="renderMatings()" style="max-width:230px"><option value="all">Alle værer</option></select></div><div id="matingList" class="mating-overview"></div></div></section>
+
+<section id="slaughter" class="page"><div class="page-title"><div><h2>Til slakt</h2><p class="muted">Registrer dyr som skal på slakt og følg dei fram til dei er sende.</p></div></div><div class="section-note">🚚 Når du legg eit dyr til her, blir det liggande i slaktlista til du markerer det som <strong>Sendt</strong>.</div><form id="slaughterForm" class="card form"><div class="grid2"><label>Dyr – individnummer<select id="slaughterAnimal" required></select></label><label>Planlagt slaktedato<input id="slaughterDate" type="date" required></label></div><div class="grid2"><label>Mottakar / slakteri<input id="slaughterRecipient" placeholder="t.d. Fatland / Nortura"></label><label>Merknad<input id="slaughterNote" placeholder="t.d. lam, utrangeringsdyr..." ></label></div><button class="primary wide" type="submit">＋ Legg dyr til slaktlista</button></form><div class="card"><div class="card-head"><h3>Dyr til slakt</h3><span class="badge" id="slaughterTotal">0</span></div><div id="slaughterList" class="list"></div></div></section>
+
+
+<section id="health" class="page"><div class="page-title"><div><h2>💚 Helse & behandling</h2><p class="muted">Samle vaksinar, ormekur, behandlingar, sjukdom og dyrlege.</p></div></div><div class="hint">Alt blir lagra i Supabase og er synleg for andre innlogga brukarar på garden.</div><form id="healthForm" class="card form"><div class="grid2"><label>Dyr<select id="healthAnimal" required></select></label><label>Dato<input id="healthDate" type="date" required></label></div><div class="grid2"><label>Type<select id="healthType"><option>Vaksine</option><option>Ormekur</option><option>Behandling</option><option>Sjukdom</option><option>Skade</option><option>Dyrlege</option><option>Anna</option></select></label><label>Preparat / behandling<input id="healthTreatment" placeholder="t.d. Ivomec"></label></div><label>Tilbakehaldstid til<input id="healthWithdrawal" type="date"></label><label>Merknad<textarea id="healthNote" rows="3" required placeholder="Symptom, dose, observasjonar..."></textarea></label><button class="primary wide" type="submit">＋ Lagre helseregistrering</button></form><div class="card"><div class="card-head"><h3>Helsehistorikk</h3><span class="badge" id="healthTotal">0</span></div><div id="healthList" class="list"></div></div></section>
+<section id="weights" class="page"><div class="page-title"><div><h2>⚖️ Vekter & tilvekst</h2><p class="muted">Registrer vegingar og følg utviklinga til dyra.</p></div></div><form id="weightForm" class="card form"><div class="grid2"><label>Dyr<select id="weightAnimal" required></select></label><label>Dato<input id="weightDate" type="date" required></label></div><div class="grid2"><label>Vekt (kg)<input id="weightValue" type="number" min="0" step="0.1" required></label><label>Type<select id="weightType"><option>Fødselsvekt</option><option>Vårvekt</option><option>Haustvekt</option><option>Slaktevekt</option><option>Anna</option></select></label></div><label>Merknad<input id="weightNote" placeholder="T.d. vegd før beiteslepp"></label><button class="primary wide" type="submit">＋ Registrer vekt</button></form><div class="card"><div class="card-head"><h3>Vekthistorikk</h3><span class="badge" id="weightTotal">0</span></div><div id="weightList" class="list"></div></div></section>
+<section id="pasture" class="page"><div class="page-title"><div><h2>🌱 Beite & jordlappar</h2><p class="muted">Lag jordlappane de faktisk har på garden, og følg kvar flokken er.</p></div></div><div class="hint">💡 De bestemmer sjølve namna: <strong>Heimabøen</strong>, <strong>Neset</strong>, <strong>Myra</strong>, <strong>Skorafjell</strong> osv.</div><form id="pastureForm" class="card form"><h3>＋ Ny jordlapp</h3><div class="grid2"><label>Namn på jordlapp<input id="pastureName" required placeholder="t.d. Heimabøen"></label><label>Areal (dekar)<input id="pastureArea" type="number" min="0" step="0.1"></label></div><div class="grid2"><label>Plassering<input id="pastureLocation" placeholder="t.d. ovanfor fjøsen"></label><label>Status<select id="pastureStatus"><option>Tilgjengeleg</option><option>Beita no</option><option>Kviler</option><option>Stengt</option></select></label></div><label>Merknad<textarea id="pastureNote" rows="2" placeholder="Gjerde, vatn, tilkomst, kvalitet..."></textarea></label><button class="primary wide" type="submit">＋ Lagre jordlapp</button></form><form id="pastureMoveForm" class="card form"><h3>🚜 Flytt flokken</h3><div class="grid2"><label>Jordlapp<select id="movePasture" required></select></label><label>Dato<input id="moveDate" type="date" required></label></div><div class="grid2"><label>Gruppe / namn<input id="moveGroup" placeholder="t.d. Søyer 1"></label><label>Tal dyr<input id="moveCount" type="number" min="0"></label></div><label>Merknad<input id="moveNote" placeholder="T.d. flytta etter gjerdekontroll"></label><button class="primary wide" type="submit">🚜 Registrer flytting</button></form><div class="card"><div class="card-head"><div><h3>Jordlappane våre</h3><div class="muted">Trykk «Endre status» når de flyttar dyra.</div></div><span class="badge" id="pastureTotal">0</span></div><div id="pastureList" class="table-like"></div></div><div class="card"><div class="card-head"><h3>Flyttehistorikk</h3></div><div id="pastureMoveList" class="list"></div></div></section>
+<section id="diary" class="page"><div class="page-title"><div><h2>📖 Gardsdagbok</h2><p class="muted">Noter ting du vil hugse frå drifta.</p></div></div><form id="diaryForm" class="card form"><div class="grid2"><label>Dato<input id="diaryDate" type="date" required></label><label>Overskrift<input id="diaryTitle" required placeholder="t.d. Beiteslepp"></label></div><label>Notat<textarea id="diaryText" rows="7" required placeholder="Skriv om vêret, beite, dyr, arbeid og observasjonar..."></textarea></label><button class="primary wide" type="submit">＋ Lagre dagboknotat</button></form><div class="card"><div class="card-head"><h3>Dagbok</h3><span class="badge" id="diaryTotal">0</span></div><div id="diaryList" class="list"></div></div></section>
+<section id="supplies" class="page">
+  <div class="page-title"><div><h2><span class="title-icon" data-icon="warehouse"></span> Innkjøp & lager</h2><p class="muted">Kraftfôr, saltstein, rundballar og prisar – samla på ein stad.</p></div></div>
+  <div class="inventory-tabs">
+    <button class="inventory-tab active" data-tab="supplies" onclick="showInventoryTab('supplies')"><span data-icon="bag"></span> Lager</button>
+    <button class="inventory-tab" data-tab="bales" onclick="showInventoryTab('bales')"><span data-icon="hay"></span> Rundballar</button>
+    <button class="inventory-tab" data-tab="prices" onclick="showInventoryTab('prices')"><span data-icon="coins"></span> Prisar</button>
+  </div>
+  <div id="inventory-supplies" class="inventory-panel active">
+    <div class="inventory-grid">
+      <form id="supplyForm" class="card form"><h3>+ Ny lagerpost</h3><div class="grid2"><label>Vare<input id="supplyName" required placeholder="t.d. Kraftfôr Sau 16%"></label><label>Kategori<select id="supplyCategory"><option>Kraftfôr</option><option>Saltstein</option><option>Mineral</option><option>Strø</option><option>Anna</option></select></label></div><div class="grid2"><label>Mengde<input id="supplyQuantity" type="number" min="0" step="0.1" required></label><label>Eining<input id="supplyUnit" placeholder="sekk / kg / stk" value="stk"></label></div><div class="grid2"><label>Minimumslager<input id="supplyMin" type="number" min="0" step="0.1" value="0"></label><label>Pris per eining (kr)<input id="supplyPrice" type="number" min="0" step="0.01"></label></div><label>Leverandør<input id="supplySupplier" placeholder="t.d. Felleskjøpet"></label><label>Merknad<textarea id="supplyNote" rows="2"></textarea></label><button class="primary wide" type="submit">Lagre lagerpost</button></form>
+      <div class="card"><div class="card-head"><div><h3>Lagerstatus</h3><div class="muted">Markert når mengda er på eller under minimum.</div></div><span class="badge" id="supplyTotal">0</span></div><div id="supplyList" class="inventory-list"></div></div>
+    </div>
+  </div>
+  <div id="inventory-bales" class="inventory-panel">
+    <div class="inventory-grid"><form id="baleForm" class="card form"><h3>+ Registrer rundballar</h3><div class="grid2"><label>Type<input id="baleType" required placeholder="t.d. Surfôr"></label><label>Tal<input id="baleCount" type="number" min="1" required></label></div><div class="grid2"><label>Lagringsstad<input id="baleLocation" placeholder="t.d. Løa / ute"></label><label>Dato<input id="baleDate" type="date" required></label></div><label>Merknad<textarea id="baleNote" rows="2" placeholder="Kvalitet, årgang, plast, parti..."></textarea></label><button class="primary wide" type="submit">Lagre rundballpost</button></form><div class="card"><div class="card-head"><div><h3>Rundballoversikt</h3><div class="muted">Du kan ha fleire lagerstader og ta ut éin rundball om gongen når de fôrar.</div></div><span class="badge" id="baleTotal">0</span></div><div id="baleList" class="inventory-list"></div></div></div>
+  </div>
+  <div id="inventory-prices" class="inventory-panel">
+    <div class="inventory-grid"><form id="priceForm" class="card form"><h3>+ Legg inn pris</h3><div class="grid2"><label>Vare<input id="priceName" required placeholder="t.d. Kraftfôr Sau 16%"></label><label>Kategori<input id="priceCategory" value="Kraftfôr"></label></div><div class="grid2"><label>Pris (kr)<input id="priceValue" type="number" min="0" step="0.01" required></label><label>Eining<input id="priceUnit" placeholder="25 kg sekk"></label></div><label>Leverandør<input id="priceSupplier" value="Felleskjøpet"></label><label>Merknad<input id="priceNote" placeholder="T.d. medlemspris / sist sjekka"></label><button class="primary wide" type="submit">Lagre pris</button></form><div class="card"><div class="card-head"><div><h3>Prisoversikt</h3><div class="muted">Prisane må oppdaterast manuelt når leverandøren endrar dei.</div></div><span class="badge" id="priceTotal">0</span></div><div id="priceList" class="inventory-list"></div></div></div>
+  </div>
+</section>
+<section id="adoption" class="page">
+  <div class="page-title"><div><h2><span class="title-icon" data-icon="family"></span> Adopsjon av lam</h2><p class="muted">Når eit lam ikkje blir tatt av den biologiske mora, kan du registrere ei adoptivmor her.</p></div></div>
+  <div class="section-note"><span class="title-icon small" data-icon="family"></span> <strong>Viktig:</strong> Den biologiske mora blir ståande som biologisk mor. Adoptivmora blir lagra separat, slik at begge relasjonane blir synlege i dyreprofilane.</div>
+  <form id="adoptionForm" class="card form">
+    <h3 style="margin-bottom:15px">🐑 Registrer adopsjon</h3>
+    <div class="grid2">
+      <label>Lam<select id="adoptionLamb" required onchange="updateAdoptionBioMother()"><option value="">Vel lam frå besetninga …</option></select><small id="adoptionBioHint" class="field-help">Vel lammet du vil registrere adopsjon for.</small></label>
+      <label>Dato<input id="adoptionDate" type="date" required></label>
+    </div>
+    <div class="grid2">
+      <label>Biologisk mor<select id="adoptionBioMother" required><option value="">Vel biologisk mor …</option></select></label>
+      <label>Adoptivmor<select id="adoptionMother" required><option value="">Vel adoptivmor …</option></select></label>
+    </div>
+    <label>Merknad<textarea id="adoptionNote" rows="3" placeholder="T.d. lammet blei avvist, svak mjølkeproduksjon eller fosterlam... "></textarea></label>
+    <button class="primary wide" type="submit">＋ Registrer adopsjon</button>
+  </form>  <div class="card"><div class="card-head"><div><h3>Adopsjonsoversikt</h3><div class="muted">Her ser du biologisk mor og adoptivmor for kvart lam.</div></div><span class="badge" id="adoptionTotal">0</span></div><div id="adoptionList" class="list"></div></div>
+</section>
+
+<section id="settings" class="page"><div class="page-title"><div><h2><span class="title-icon" data-icon="settings"></span> <span data-i18n="settings">Innstillingar</span></h2><p class="muted" data-i18n="settings_desc">Tilpass utsjånad, språk og korleis appen fungerer.</p></div></div><div class="settings-grid"><div class="card settings-card"><div class="settings-section-title"><span class="settings-icon" data-icon="palette"></span><div><h3>Utsjånad</h3><p class="muted">Vel korleis Sundsteigen Gård skal sjå ut på denne eininga.</p></div></div><label>Tema<select id="settingTheme"><option value="garden">Grøn / jordfargar</option><option value="white">Kvitt og reint</option><option value="dark">Mørk modus</option></select></label><label class="setting-toggle"><span><strong>Kompakt visning</strong><small>Mindre mellomrom og meir innhald på skjermen.</small></span><input id="settingCompact" type="checkbox"></label><label class="setting-toggle"><span><strong>Reduser animasjonar</strong><small>Roligare overgangar, nyttig på eldre telefonar.</small></span><input id="settingReduceMotion" type="checkbox"></label></div><div class="card settings-card"><div class="settings-section-title"><span class="settings-icon" data-icon="language"></span><div><h3>Språk</h3><p class="muted">Vel språket du vil bruke i appen.</p></div></div><label>Språk<select id="settingLanguage"><option value="nn">Nynorsk</option><option value="nb">Bokmål</option></select></label><label class="scale-setting"><span><strong>Skalering på mobil</strong><small>Juster storleiken på innhaldet frå 50 % til 200 %.</small></span><div class="scale-control"><input id="settingScale" type="range" min="50" max="200" step="5" value="100"><output id="settingScaleValue">100 %</output></div></label><div class="setting-note">💡 Skaleringa blir lagra på denne eininga. Supabase-data og registreringar blir ikkje endra.</div></div><div class="card settings-card"><div class="settings-section-title"><span class="settings-icon" data-icon="shield"></span><div><h3>Sikkerheit & bruk</h3><p class="muted">Små val som gjer appen tryggare og meir praktisk.</p></div></div><label class="setting-toggle"><span><strong>Spør før sletting</strong><small>Vis bekreftelse før dyr, lagerpostar og andre registreringar blir sletta.</small></span><input id="settingConfirmDelete" type="checkbox" checked></label><label>Startside etter innlogging<select id="settingStartPage"><option value="dashboard">Heim</option><option value="animals">Besetning</option><option value="tasks">Gjøremål</option><option value="supplies">Innkjøp & lager</option><option value="more">Meir</option></select></label><div class="settings-actions"><button class="secondary" onclick="resetAppSettings()">↺ Nullstill innstillingar</button><button class="secondary" onclick="showAppInfo()">ⓘ Om appen</button></div></div><div class="card settings-card"><div class="settings-section-title"><span class="settings-icon" data-icon="shield"></span><div><h3>Sikkerheit & backup</h3><p class="muted">Ta vare på alle registreringane dine før du fyller inn den verkelege besetninga.</p></div></div><div class="backup-actions"><button class="primary" type="button" onclick="downloadFullBackup()">💾 Last ned full backup</button><label class="secondary file-button">📥 Importer backup<input id="backupImportInput" type="file" accept="application/json,.json" onchange="importFullBackup(event)" hidden></label></div><div class="setting-note">Backupen inneheld dyra, lamming, paringar, dyrestell, helse, vekter, beite, dagbok, lager, rundballar, prisar, gjeremål og gardinfo. Import overskriv ikkje eksisterande data automatisk – du må stadfeste først.</div><div class="sync-status"><span class="sync-dot"></span><div><strong>Skydata aktiv</strong><small>Backupfila blir lagra lokalt hos deg. Oppbevar ho ein trygg stad.</small></div></div></div><div class="card settings-card"><div class="settings-section-title"><span class="settings-icon" data-icon="cloud"></span><div><h3>Synkronisering</h3><p class="muted">Dyra og registreringane blir lagra i Supabase.</p></div></div><div class="sync-status"><span class="sync-dot"></span><div><strong>Skydata aktiv</strong><small>Innstillingane på denne sida er lokale for eininga.</small></div></div></div></div></section>
+<section id="statistics" class="page"><div class="page-title"><div><h2>📊 Statistikk & avl</h2><p class="muted">Nøkkeltal frå dataene de allereie har registrert.</p></div></div><div class="v3-grid"><div class="v3-kpi"><small>AKTIVE DYR</small><strong id="statActive">0</strong></div><div class="v3-kpi"><small>REGISTRERTE LAM</small><strong id="statLambs">0</strong></div><div class="v3-kpi"><small>SNITT FØDSELSVEKT</small><strong id="statBirthWeight">–</strong></div><div class="v3-kpi"><small>PARINGAR</small><strong id="statMatings">0</strong></div><div class="v3-kpi"><small>HELSEHENDINGAR</small><strong id="statHealth">0</strong></div><div class="v3-kpi"><small>VEGINGAR</small><strong id="statWeights">0</strong></div></div><div class="card"><h3>🐑 Avlsresultat for søyer</h3><p class="muted">Snittvekt, fødselsforløp og siste jurstatus. Stjerner er ein enkel indikator samanlikna med registreringane i eiga besetning.</p><div id="eweBreedingList" class="ewe-breeding-list"></div></div><div class="card"><h3>🐏 Avlsoversikt</h3><div class="stat-bars" id="ramStats" style="margin-top:15px"></div></div><div class="card"><h3>📈 Besetningsfordeling</h3><div class="stat-bars" id="sexStats" style="margin-top:15px"></div></div><div class="card"><h3>🌱 Sesongstatus</h3><div class="row"><div>Helse<div class="subtle">Registrerte helsehendingar</div></div><span class="badge" id="seasonHealth">0</span></div><div class="row"><div>Vekter<div class="subtle">Alle registrerte vegingar</div></div><span class="badge" id="seasonWeights">0</span></div><div class="row"><div>Til slakt<div class="subtle">Dyr som står i slaktlista</div></div><span class="badge gold" id="seasonSlaughter">0</span></div><div class="row"><div>Beite<div class="subtle">Jordlappar registrert</div></div><span class="badge" id="seasonPastures">0</span></div></div></section>
+<section id="tasks" class="page"><div class="page-title"><div><h2>Gjøremål</h2><p class="muted">Planlegg arbeidet og sjå kven som utførte det.</p></div></div><form id="taskForm" class="card form"><div class="grid2"><label>Gjeremål<input id="taskTitle" required placeholder="t.d. Fôr sauene"></label><label>Frist<input id="taskDue" type="date"></label></div><div class="grid2"><label>Type<select id="taskType"><option>Dagleg</option><option>Fôring</option><option>Dyrestell</option><option>Fjøs</option><option>Anna</option></select></label><label>Prioritet<select id="taskPriority"><option value="normal">Normal</option><option value="high">Viktig</option><option value="low">Låg</option></select></label></div><button class="primary wide" type="submit">＋ Legg til gjeremål</button></form><div id="taskList" class="list"></div></section>
+</main>
+
+<nav class="mobile-quick-nav" aria-label="Mobilnavigasjon">
+  <button data-page="dashboard" onclick="openPage('dashboard')"><span data-icon="home"></span><span>Heim</span></button>
+  <button data-page="animals" onclick="openPage('animals')"><span data-icon="sheep"></span><span>Besetning</span></button>
+  <button data-page="lambing" onclick="openPage('lambing')"><span data-icon="lamb"></span><span>Lamming</span></button>
+  <button data-page="tasks" onclick="openPage('tasks')"><span data-icon="check-square"></span><span>Oppgåver</span></button>
+  <button data-page="more" onclick="openPage('more')"><span data-icon="menu"></span><span>Meir</span></button>
+</nav>
+<div class="footer-credit">🐑 <strong>Sundsteigen Gård</strong><br>Laga med omtanke av <strong>Malvin R. Larsen</strong></div><nav class="bottom-nav" aria-label="Hovudnavigasjon">
+  <button class="sidebar-brand" data-page="dashboard" onclick="openPage('dashboard')" aria-label="Gå til Heim">
+    <span class="sidebar-logo"><img src="farm-logo.png" alt="" decoding="async"></span>
+    <span><small>SAUEHALD</small><strong>Sundsteigen Gård</strong></span>
+  </button>
+  <div class="nav-group"><div class="nav-label">KJERNE</div>
+    <button data-page="dashboard" onclick="openPage('dashboard')"><span class="nav-icon" data-icon="home"></span><span>Heim</span></button>
+    <button data-page="animals" onclick="openPage('animals')"><span class="nav-icon" data-icon="sheep"></span><span>Besetning</span></button>
+    <button data-page="lambing" onclick="openPage('lambing')"><span class="nav-icon" data-icon="lamb"></span><span>Lamming</span></button>
+    <button data-page="mating" onclick="openPage('mating')"><span class="nav-icon" data-icon="mating"></span><span>Paring</span></button>
+    <button data-page="adoption" onclick="openPage('adoption')"><span class="nav-icon" data-icon="family"></span><span>Avkom</span></button>
+  </div>
+  <div class="nav-group"><div class="nav-label">DRIFT</div>
+    <button data-page="logs" onclick="openPage('logs')"><span class="nav-icon" data-icon="stethoscope"></span><span>Dyrestell</span></button>
+    <button data-page="health" onclick="openPage('health')"><span class="nav-icon" data-icon="heart"></span><span>Helse</span></button>
+    <button data-page="weights" onclick="openPage('weights')"><span class="nav-icon" data-icon="scale"></span><span>Vekt</span></button>
+    <button data-page="tasks" onclick="openPage('tasks')"><span class="nav-icon" data-icon="check-square"></span><span>Oppgåver</span></button>
+    <button data-page="supplies" onclick="openPage('supplies')"><span class="nav-icon" data-icon="warehouse"></span><span>Innkjøp & lager</span></button>
+    <button data-page="statistics" onclick="openPage('statistics')"><span class="nav-icon" data-icon="chart"></span><span>Statistikk</span></button>
+  </div>
+  <div class="sidebar-bottom">
+    <button data-page="more" onclick="openPage('more')"><span class="nav-icon" data-icon="menu"></span><span>Meir</span></button>
+    <button data-page="settings" onclick="openPage('settings')"><span class="nav-icon" data-icon="settings"></span><span>Innstillingar</span></button>
+  </div>
+</nav>
+<div id="toast" class="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<script src="./supabase-bridge.js"></script>
+<script>
+const supabaseClient=window.supabaseClient;
+let currentSession=null;
+let resetLambDraftCapture=false;
+const data={animals:[],logs:[],tasks:[],lambings:[],plans:[],matings:[],slaughter:[],adoptions:[],health:[],weights:[],pastures:[],pastureMoves:[],diary:[],farmProfile:null,supplies:[],bales:[],prices:[],currentUser:""};
+let lambDrafts={};
+const $=id=>document.getElementById(id);
+function val(id){return $(id)?.value??""} function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function iconSvg(name, cls="icon"){
+ const p={
+  home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/><path d="M9 21v-6h6v6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  sheep:'<path d="M5.5 13.5c-1.7 0-3-1.3-3-3s1.3-3 3-3c.7 0 1.4.2 1.9.7C8.2 6.4 9.8 5.5 12 5.5s3.8.9 4.6 2.7c.5-.5 1.2-.7 1.9-.7 1.7 0 3 1.3 3 3s-1.3 3-3 3h-.6c-.5 2.4-2.5 4-5.9 4s-5.4-1.6-5.9-4h-.6Z"/><path d="M9 13.5h.01M15 13.5h.01M10 17.2h4"/>',
+  ewe:'<path d="M6 13c-1.4-.4-2.4-1.6-2.4-3.1 0-1.8 1.4-3.2 3.2-3.2.8 0 1.5.3 2.1.8C9.6 6.1 10.7 5.2 12 5.2s2.4.9 3.1 2.3c.6-.5 1.3-.8 2.1-.8 1.8 0 3.2 1.4 3.2 3.2 0 1.5-1 2.7-2.4 3.1-.3 2.7-2 4.4-4 4.4h-4c-2 0-3.7-1.7-4-4.4Z"/><path d="M10 14h.01M14 14h.01"/>',
+  ram:'<path d="M7 11.5c-1.9 0-3.5-1.6-3.5-3.5S5.1 4.5 7 4.5c1.2 0 2.2.6 2.9 1.5"/><path d="M17 11.5c1.9 0 3.5-1.6 3.5-3.5S18.9 4.5 17 4.5c-1.2 0-2.2.6-2.9 1.5"/><path d="M7 11.5c.2 3.6 2.1 6 5 6s4.8-2.4 5-6"/><path d="M10 14h.01M14 14h.01M10 17.5v2.5M14 17.5v2.5"/>',
+  lamb:'<path d="M7 16.5c-1.8-.2-3-1.4-3-3 0-1.8 1.4-3.1 3.1-3.1.5-2.2 2.2-3.4 4.7-3.4s4.2 1.2 4.7 3.4c1.7 0 3.1 1.3 3.1 3.1 0 1.6-1.2 2.8-3 3-.5 1.8-2 2.8-4.9 2.8s-4.2-1-4.7-2.8Z"/><path d="M9.5 14h.01M14.5 14h.01M11 17h2"/>',
+  stethoscope:'<path d="M6 3v6a4 4 0 0 0 8 0V3"/><path d="M4 3h4M12 3h4"/><path d="M14 13v2a5 5 0 0 0 10 0v-1" transform="translate(-3 0)"/><circle cx="18" cy="13" r="2"/>',
+  'check-square':'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8 12 2.5 2.5L16 9"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>',
+  mating:'<path d="M6 18c1.2-3.8 2.9-5.9 6-5.9s4.8 2.1 6 5.9"/><path d="M4.5 12.2c0-2 1.2-3.2 2.8-3.2s2.7 1.2 2.7 3.2M19.5 12.2c0-2-1.2-3.2-2.8-3.2S14 10.2 14 12.2"/><path d="M12 4v5M9.5 6.5 12 4l2.5 2.5"/>',
+  truck:'<path d="M3 6h11v10H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>',
+  heart:'<path d="M20.8 8.8c0 5.1-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.8A4.6 4.6 0 0 1 12 6.3a4.6 4.6 0 0 1 8.8 2.5Z"/><path d="M8 11h2l1-2 2 4 1-2h2"/>',
+  history:'<path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/>',
+  scale:'<path d="M12 4v16M5 7h14M7 7l-3 5a3 3 0 0 0 6 0L7 7ZM17 7l-3 5a3 3 0 0 0 6 0l-3-5ZM5 20h14"/>',
+  leaf:'<path d="M20 4C11 4 5 8.5 5 15c0 3 2 5 5 5 6.5 0 10-6 10-16Z"/><path d="M4 21c4-6 8-9 14-12"/>',
+  book:'<path d="M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 0-2 2V4Z"/><path d="M7 20h12M9 8h6M9 12h6M9 16h4"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  user:'<circle cx="12" cy="7" r="3"/><path d="M5 21c.7-4.2 3-6 7-6s6.3 1.8 7 6"/>',
+  family:'<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3.5 20c.6-3.7 2.4-5.5 5.5-5.5s4.9 1.8 5.5 5.5M14 15c2.8.1 4.6 1.7 5.1 5"/>',
+  note:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  clipboard:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8 9h8M8 13h8M8 17h5"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  bag:'<path d="M5 8h14l1 13H4L5 8Z"/><path d="M8 8a4 4 0 0 1 8 0M9 12h.01M15 12h.01"/>',
+  hay:'<path d="M6 20c0-6 2-10 6-15 4 5 6 9 6 15"/><path d="M12 5v15M7 14h10M8 18h8"/>',
+  coins:'<circle cx="9" cy="9" r="5"/><path d="M13 13a5 5 0 1 0 2-2M9 7v4M7.5 9h3M15 16v4M12.5 18h5"/>',
+  warehouse:'<path d="M3 10 12 4l9 6v10H3V10Z"/><path d="M7 20v-6h10v6M9 11h6"/>',
+  search:'<circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  settings:'<path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V20h-2.6v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8 15a1.7 1.7 0 0 0-1.5-1H6v-2.6h.5A1.7 1.7 0 0 0 8 10a1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V5h2.6v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1A1.7 1.7 0 0 0 19.4 10a1.7 1.7 0 0 0 1.5 1h.1v2.6h-.1a1.7 1.7 0 0 0-1.5 1.4Z"/>',
+  palette:'<path d="M12 3a9 9 0 0 0 0 18h1.5a2 2 0 0 0 0-4H12a2 2 0 0 1 0-4h2.5a6.5 6.5 0 0 0 0-13H12Z"/><circle cx="7.5" cy="10" r="1"/><circle cx="9" cy="6.5" r="1"/><circle cx="13" cy="6" r="1"/>',
+  language:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.3 2.5 3.5 5.5 3.5 9S14.3 18.5 12 21c-2.3-2.5-3.5-5.5-3.5-9S9.7 5.5 12 3Z"/>',
+  shield:'<path d="M12 3 20 6v5c0 5-3.3 8.4-8 10-4.7-1.6-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/>',
+  cloud:'<path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6 9a4.5 4.5 0 0 0 1 9Z"/><path d="M9 18v-3M12 18v-5M15 18v-2"/>',
+
+ };
+ return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p[name]||p.note}</svg>`;
+}
+function hydrateIcons(scope=document){scope.querySelectorAll('[data-icon]').forEach(el=>{if(!el.querySelector('svg'))el.innerHTML=iconSvg(el.dataset.icon,el.classList.contains('nav-icon')?'nav-svg':el.classList.contains('quick-icon')?'quick-svg':'icon')})}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
+function displayNameForUser(user){const email=String(user?.email||"").toLowerCase();if(email==="larsen_76@hotmail.no")return "Eivind Larsen";if(email==="malvin.rosseland@outlook.com")return "Malvin R. Larsen";const m=user?.user_metadata||{};if(m.display_name)return m.display_name;if(m.full_name||m.name)return m.full_name||m.name;if(user?.email)return user.email.split("@")[0];return "Innlogga brukar"}
+function greetingNameForUser(user){const email=String(user?.email||"").toLowerCase();if(email==="larsen_76@hotmail.no")return "Eivind Larsen";if(email==="malvin.rosseland@outlook.com")return "Malvin Larsen";const m=user?.user_metadata||{};const supplied=m.full_name||m.display_name||m.name||[m.first_name,m.last_name].filter(Boolean).join(" ");if(supplied)return String(supplied).trim().replace(/\s+/g," ");const local=email.split("@")[0].replace(/[._-]+/g," ").trim();if(local)return local.split(/\s+/).map(part=>part.charAt(0).toLocaleUpperCase("nn-NO")+part.slice(1)).join(" ");return ""}
+function updateHomeGreeting(){const target=$("homeGreetingName");if(target)target.textContent=greetingNameForUser(currentSession?.user)||"deg"}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove("show"),2600)}
+function errorToast(msg){toast("⚠️ "+msg)}
+function setAppVisible(v){$("authScreen").classList.toggle("hidden",v);document.querySelector("main").style.display=v?"block":"none";updateNavigationLayout()}
+function setActiveNav(id){const navId=id==="new-animal"?"animals":id;document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===navId));const mobilePage=["dashboard","animals","lambing","tasks"].includes(navId)?navId:"more";document.querySelectorAll(".mobile-quick-nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===mobilePage))}
+function isMobileLayout(){const width=document.documentElement.clientWidth||window.innerWidth;return width<=900||navigator.userAgentData?.mobile===true||(navigator.maxTouchPoints>0&&width<1200)||/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)}
+function updateNavigationLayout(){const mobile=isMobileLayout(),visible=$("authScreen")?.classList.contains("hidden");document.body.classList.toggle("mobile-layout",mobile);document.body.classList.toggle("desktop-layout",!mobile);const desktopNav=document.querySelector(".bottom-nav"),mobileNav=document.querySelector(".mobile-quick-nav");if(desktopNav){const show=visible&&!mobile;desktopNav.hidden=!show;desktopNav.style.setProperty("display",show?"flex":"none","important");desktopNav.setAttribute("aria-hidden",String(!show));desktopNav.toggleAttribute("inert",!show)}if(mobileNav){const show=visible&&mobile;mobileNav.hidden=!show;mobileNav.style.setProperty("display",show?"grid":"none","important");mobileNav.setAttribute("aria-hidden",String(!show));mobileNav.toggleAttribute("inert",!show)}}
+updateNavigationLayout();window.addEventListener("resize",updateNavigationLayout);
+window.addEventListener("orientationchange",updateNavigationLayout);
+window.matchMedia("(max-width: 900px)").addEventListener?.("change",updateNavigationLayout);
+window.matchMedia("(pointer: coarse)").addEventListener?.("change",updateNavigationLayout);
+async function assertFarmMember(session){if(!session?.user?.id)throw new Error("Du er ikkje innlogga lenger. Logg inn på nytt.");const {data:membership,error}=await supabaseClient.from("app_members").select("active").eq("user_id",session.user.id).maybeSingle();if(error)throw error;if(!membership||membership.active!==true)throw new Error("Denne kontoen har ikkje tilgang til Sundsteigen Gård. Be garden sin administrator om å leggje til brukaren.");return session}
+async function requireSession(){const {data:{session},error}=await supabaseClient.auth.getSession();if(error||!session?.user)throw new Error("Du er ikkje innlogga lenger. Logg inn på nytt.");await assertFarmMember(session);currentSession=session;data.currentUser=displayNameForUser(session.user);updateUserUI();updateAccountUI();return session}
+function updateUserUI(){const n=data.currentUser||"Innlogga brukar";["loggedInAs","logUser"].forEach(id=>{if($(id))$(id).textContent=n});updateHomeGreeting()}
+function updateAccountUI(){if($("accountName"))$("accountName").textContent=data.currentUser||"Innlogga brukar";if($("accountEmail"))$("accountEmail").textContent=currentSession?.user?.email||""}
+function openAccount(){$("accountModal").classList.add("open");updateAccountUI()} function closeAccount(){$("accountModal").classList.remove("open")}
+function openPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const p=$(id);if(!p)return;p.classList.add("active");setActiveNav(id);renderAll();window.scrollTo({top:0,behavior:"smooth"})}
+function findAnimalFromHome(){const query=val("homeAnimalSearch").trim();openPage("animals");const input=$("animalSearch");if(input){input.value=query;renderAnimals();if(query)input.setSelectionRange(query.length,query.length)}}
+function adjustLambCount(change){const input=$("lambCount");if(!input)return;input.value=String(Math.min(8,Math.max(1,(parseInt(input.value||"1",10)||1)+change)));renderLambFields()}
+function showAuthError(msg){$("authError").textContent=msg;$("authError").classList.add("show")}function clearAuthError(){$("authError").classList.remove("show")}
+async function handleAuthSession(session){currentSession=session;if(!session){data.currentUser="";setAppVisible(false);return}data.currentUser=displayNameForUser(session.user);setAppVisible(false);clearAuthError();try{await assertFarmMember(session);updateUserUI();updateAccountUI();await loadAll();setAppVisible(true);const startPage=localStorage.getItem("sundsteigen_start_page")||"dashboard";if(startPage!=="dashboard")openPage(startPage)}catch(e){console.error(e);data.currentUser="";currentSession=null;setAppVisible(false);showAuthError(e.message.startsWith("Denne kontoen")?e.message:"Kunne ikkje laste data. Kontroller innlogginga og nettverket, og prøv igjen. "+e.message)}}
+async function insertAndReload(table,row,msg,page){await requireSession();const {error}=await supabaseClient.from(table).insert(row);if(error)throw error;const tables=table==="events"?["events"]:[table];await loadAll({tables});if(msg)toast(msg);if(page)openPage(page)}
+function parseJson(desc,fallback={}){try{const x=JSON.parse(desc||"{}");return x&&typeof x==="object"?x:fallback}catch{return fallback}}
+function animalNumber(id){return data.animals.find(a=>a.id===id)?.individnummer||""}
+async function loadAll(){const [a,e,t,m]=await Promise.all([supabaseClient.from("animals").select("*").order("created_at",{ascending:false}),supabaseClient.from("events").select("*").order("date",{ascending:false}).order("created_at",{ascending:false}),supabaseClient.from("tasks").select("*").order("created_at",{ascending:false}),supabaseClient.from("matings").select("*").order("mating_date",{ascending:false})]);if(a.error)throw new Error(a.error.message);if(e.error)throw new Error(e.error.message);if(t.error)throw new Error(t.error.message);if(m.error)throw new Error("Paringsdata manglar i Supabase. Kontroller at tabellen matings finst.");data.animals=a.data||[];const events=e.data||[];const parsed=events.map(x=>({row:x,j:parseJson(x.description)}));data.logs=parsed.filter(({row,j})=>j._kind!="lamming"&&j._kind!="plan"&&j._kind!="paring"&&j._kind!="slakt"&&j._kind!="adoption"&&row.type!=="Lamming").map(({row:x,j})=>({id:x.id,date:x.date,type:x.type,note:j.note??x.description??"",animal:x.animal_id?animalNumber(x.animal_id):(j.animal||""),user:j.user||"Ukjend"}));data.lambings=parsed.filter(({row,j})=>j._kind==="lamming"||row.type==="Lamming").map(({row:x,j})=>({id:x.id,date:x.date,mother:j.mother||animalNumber(x.animal_id),count:Number(j.count||1),note:j.note||"",lammekode:j.lammekode||"",user:j.user||"Ukjend",lammekode:j.lammekode||"",lambs:j.lambs||[]}));data.plans=parsed.filter(({j})=>j._kind==="plan").map(({row:x,j})=>({id:x.id,date:x.date,type:j.planType||"Anna",time:j.time||"",contact:j.contact||"",note:j.note||"",status:j.status||"Planlagt",user:j.user||"Ukjend"}));const legacyMatings=parsed.filter(({j})=>j._kind==="paring").map(({row:x,j})=>({id:"legacy-"+x.id,date:x.date,ewe:j.ewe||animalNumber(x.animal_id),ram:j.ram||"",eweId:x.animal_id,ramId:data.animals.find(a=>a.individnummer===j.ram)?.id||null,round:Number(j.round||1),due:j.due||calcDue(x.date),note:j.note||"",user:j.user||"Ukjend"}));data.matings=[...(m.data||[]).map(x=>({id:x.id,date:x.mating_date,ewe:animalNumber(x.ewe_id),ram:animalNumber(x.ram_id),eweId:x.ewe_id,ramId:x.ram_id,round:Number(x.mating_round||1),due:x.expected_due_date,note:x.note||"",user:x.user_name||"Ukjend"})),...legacyMatings];data.slaughter=parsed.filter(({j})=>j._kind==="slakt").map(({row:x,j})=>({id:x.id,date:x.date,animal:j.animal||animalNumber(x.animal_id),recipient:j.recipient||"",note:j.note||"",status:j.status||"Planlagt",sentAt:j.sentAt||"",user:j.user||"Ukjend"}));data.adoptions=parsed.filter(({j})=>j._kind==="adoption").map(({row:x,j})=>({id:x.id,date:j.date||x.date,lambId:j.lambId||x.animal_id||null,biologicalMotherId:j.biologicalMotherId||null,adoptiveMotherId:j.adoptiveMotherId||null,note:j.note||"",user:j.user||"Ukjend"}));data.tasks=t.data||[];renderAll()}
+
+let animalPage=1;
+window.setAnimalPage=function(page){animalPage=Math.max(1,Number(page)||1);renderAnimals()};
+function renderAnimals(){
+  const q=val("animalSearch").toLowerCase(), f=val("animalFilter");
+  let arr=data.animals.filter(a=>(`${a.individnummer||""} ${a.oyremerke||""} ${a.rase||""} ${a.dyregruppe||""}`).toLowerCase().includes(q));
+  if(f!=="all")arr=arr.filter(a=>a.kjonn===f);
+  const all=data.animals, ewes=all.filter(a=>a.kjonn==="søye"), rams=all.filter(a=>a.kjonn==="vær"), lambs=all.filter(a=>a.kjonn==="lam");
+  $("animalSummary").innerHTML=`<div class="overview-card"><span class="overview-icon" data-icon="sheep"></span><div><small>AKTIVE DYR</small><strong>${all.filter(isActiveAnimal).length}</strong></div></div><div class="overview-card"><span class="overview-icon ewe" data-icon="ewe"></span><div><small>SØYER</small><strong>${ewes.length}</strong></div></div><div class="overview-card"><span class="overview-icon ram" data-icon="ram"></span><div><small>VÆRER</small><strong>${rams.length}</strong></div></div><div class="overview-card"><span class="overview-icon lamb" data-icon="lamb"></span><div><small>LAM</small><strong>${lambs.length}</strong></div></div>`;
+  animalPage=1;const visible=arr;
+  $("animalList").innerHTML=arr.length?visible.map(a=>{
+    const kind=a.kjonn==="vær"?"ram":a.kjonn==="søye"?"ewe":"lamb";
+    const mother=a.kjonn==="lam"?findBiologicalMotherForLamb(a):data.animals.find(x=>x.id===a.mor_id)||null;
+    const father=animalNumber(a.far_id);
+    const offspring=a.kjonn==="søye"?data.animals.filter(x=>x.kjonn==="lam"&&findBiologicalMotherForLamb(x)?.id===a.id):[];
+    const kids=offspring.slice(0,5),statusLabel=animalStatusLabel(a);
+    return `<div class="animal-item"><div class="animal-icon ${kind}" data-icon="${kind}"></div><div class="animal-main"><div class="animal-title"><button type="button" class="animal-id-button" onclick="openAnimalModal('${esc(a.id)}')">${esc(a.individnummer)}</button><span class="animal-sex">${esc(a.kjonn||"–")}</span>${a.dyregruppe?`<span class="badge group-badge">${esc(a.dyregruppe.replace("-"," "))}</span>`:""}<span class="badge ${isActiveAnimal(a)?"":"gold"}">${esc(statusLabel)}</span></div><div class="animal-meta"><span>${a.oyremerke?`Øyremerke ${esc(a.oyremerke)}`:"Utan øyremerke"}</span>${a.rase?`<span>${esc(a.rase)}</span>`:""}${a.fodselsdato?`<span>Fødd ${formatDateNo(a.fodselsdato)}</span>`:""}</div>${a.kjonn==="lam"?`<div class="animal-family"><span class="animal-family-label">MOR</span>${mother?`<button class="relation-chip" type="button" onclick="openAnimalModal('${mother.id}')">${esc(mother.individnummer)}</button>`:`<span class="animal-family-empty">Ikkje registrert</span>`}${father?`<span class="animal-family-empty">Far ${esc(father)}</span>`:""}</div>`:a.kjonn==="søye"?`<div class="animal-family"><span class="animal-family-label">LAM I BESETNINGA · ${offspring.length}</span>${kids.map(x=>`<button class="relation-chip" type="button" onclick="openAnimalModal('${x.id}')">${esc(x.individnummer)}</button>`).join("")}${offspring.length>kids.length?`<span class="animal-family-empty">+${offspring.length-kids.length} fleire</span>`:""}${offspring.length===0?`<span class="animal-family-empty">Ingen lam registrert</span>`:""}</div>`:`<div class="animal-line">${father?`Far <strong>${esc(father)}</strong>`:""}${a.fodselsvekt?`${father?" · ":""}${esc(a.fodselsvekt)} kg ved fødsel`:""}</div>`}</div><div class="animal-actions"><button class="soft-btn" onclick="openAnimalModal('${a.id}')">Sjå profil</button><button class="danger-btn" onclick="deleteAnimal('${a.id}')">Slett</button></div></div>`
+  }).join(""):"<div class='card empty'>🐑 Ingen dyr passar søket.</div>";
+  hydrateIcons();
+}
+async function openAnimalModal(id){
+ const a=data.animals.find(x=>x.id===id); if(!a)return;
+ $("animalModalTitle").textContent=a.individnummer;
+ const breeding=a.kjonn==="søye"?getEweBreedingMetrics(a):null;
+ const breedingHelp=breeding?.ratedCount?`${breeding.assisted} av ${breeding.ratedCount} lammingar kravde hjelp`:"Fødselsforløp ikkje registrert";
+ const breedingStars=breeding?.score===null||!breeding?"Ikkje nok data":"★".repeat(Math.round(breeding.score))+"☆".repeat(5-Math.round(breeding.score));
+ const events=[...data.logs.filter(x=>x.animal===a.individnummer),...data.lambings.filter(x=>x.mother===a.individnummer).map(x=>({date:x.date,type:"Lamming",note:`${x.count} lam${x.lammekode?` · ${x.lammekode}`:""} · ${x.note||""}`,user:x.user}))].sort((x,y)=>String(y.date).localeCompare(String(x.date))).slice(0,12);
+ const mother=animalNumber(a.mor_id), father=animalNumber(a.far_id);
+ const adoptiveMotherId=data.adoptions.find(x=>x.lambId===a.id)?.adoptiveMotherId||null;
+ const adoptiveMother=animalNumber(adoptiveMotherId);
+ const biologicalChildren=data.animals.filter(x=>x.kjonn==="lam"&&findBiologicalMotherForLamb(x)?.id===a.id);
+ const adoptedChildren=data.adoptions.filter(x=>x.adoptiveMotherId===a.id).map(x=>data.animals.find(y=>y.id===x.lambId)).filter(Boolean);
+ const seen=new Set();
+ const offspring=[...biologicalChildren.map(x=>({id:x.id,individnummer:x.individnummer,kjonnLabel:x.kjonn==='søye'?'Saulam':x.kjonn==='vær'?'Vêrlam':(x.kjonn||'Lam'),relation:'biologisk avkom'})),...adoptedChildren.map(x=>({id:x.id,individnummer:x.individnummer,kjonnLabel:x.kjonn==='søye'?'Saulam':x.kjonn==='vær'?'Vêrlam':(x.kjonn||'Lam'),relation:'adoptivlam'}))].filter(x=>!seen.has(x.id)&&seen.add(x.id));
+ $("animalModalBody").innerHTML=`
+ <div class="animal-profile-actions"><button class="primary" type="button" onclick="openAnimalEdit('${a.id}')"><span data-icon="edit"></span> Rediger dyreprofil</button></div>
+ <div class="profile-section"><div class="profile-section-head"><span class="profile-section-icon" data-icon="sheep"></span><div><h3>Grunnopplysningar</h3><p class="muted">Identitet og status på dyret.</p></div></div><div class="profile-grid">
+ <div class="profile-field"><small>INDIVIDNUMMER</small><strong>${esc(a.individnummer||"–")}</strong></div>
+ <div class="profile-field"><small>ØYREMERKE</small><strong>${esc(a.oyremerke||"–")}</strong></div>
+ <div class="profile-field"><small>KJØNN</small><strong>${esc(a.kjonn||"–")}</strong></div>
+ <div class="profile-field"><small>STATUS</small><strong>${esc(a.status||"–")}</strong></div>
+ ${a.dyregruppe?`<div class="profile-field"><small>SØYEGROUPPE</small><strong>${esc(a.dyregruppe.replaceAll("-"," "))}</strong></div>`:""}
+ <div class="profile-field"><small>RASE</small><strong>${esc(a.rase||"–")}</strong></div>
+ <div class="profile-field"><small>FØDSELSDATO</small><strong>${esc(a.fodselsdato?formatDateNo(a.fodselsdato):"–")}</strong></div>
+ <div class="profile-field"><small>FØDSELSVEKT</small><strong>${a.fodselsvekt!=null?esc(a.fodselsvekt)+" kg":"–"}</strong></div>
+ </div></div>
+ ${breeding?`<div class="profile-section"><div class="profile-section-head"><span class="profile-section-icon" data-icon="chart"></span><div><h3>Avlsoversikt</h3><p class="muted">Oppsummering frå registrerte lammingar.</p></div></div><div class="ewe-profile-breeding"><div><small>INDIKATOR</small><strong class="breeding-stars">${breedingStars}${breeding.score!==null?` · ${breeding.score.toFixed(1)} / 5`:""}</strong></div><div><small>SNITT FØDSELSVEKT</small><strong>${breeding.average!==null?`${breeding.average.toFixed(1)} kg`:"Ikkje registrert"}</strong></div><div><small>FØDSELSFORLØP</small><strong>${esc(breedingHelp)}</strong></div><div><small>SISTE JURSTATUS</small><strong>${esc(breeding.latestUdder||"Ikkje registrert")}</strong></div></div><p class="subtle">Stjerner samanliknar lammesnittet med besetningssnittet og trekkjer frå registrerte fødselsproblem og avvikande jurstatus.</p><button class="soft-btn" type="button" onclick="openBreedingEditor('${a.id}')">Rediger avlsdata</button><div id="breedingEditor_${a.id}" class="breeding-editor hidden"></div></div>`:""}
+ <div class="profile-section"><div class="profile-section-head"><span class="profile-section-icon" data-icon="family"></span><div><h3>Familie</h3><p class="muted">Biologiske foreldre og eventuell adoptivmor.</p></div></div><div class="profile-family"><div><small>BIOLOGISK MOR</small><strong>${esc(mother||"–")}</strong></div><div><small>FAR</small><strong>${esc(father||"–")}</strong></div>${adoptiveMother?`<div><small>ADOPTIVMOR</small><strong>${esc(adoptiveMother)}</strong></div>`:""}</div></div>
+ <div class="profile-section"><div class="profile-section-head"><span class="profile-section-icon" data-icon="family"></span><div><h3>Avkom</h3><p class="muted">Lam som har dette dyret som biologisk mor, og lam som er adopterte inn til denne søya.</p></div></div>${offspring.length?`<div class="profile-offspring">${offspring.map(o=>`<div class="profile-offspring-row"><span class="profile-offspring-icon" data-icon="lamb"></span><div><strong>${esc(o.individnummer)}</strong><div class="subtle">${esc(o.kjonnLabel)}${o.relation?` · ${esc(o.relation)}`:""}</div></div><button class="soft-btn" type="button" onclick="openAnimalModal('${o.id}')">Sjå</button></div>`).join("")}</div>`:`<div class='empty'>Ingen avkom registrert enno.</div>`}</div>
+ <div class="profile-section"><div class="profile-section-head"><span class="profile-section-icon" data-icon="note"></span><div><h3>Notat</h3></div></div><div class="profile-note">${esc(a.notat||"Ingen notat")}</div></div>
+ <div class="profile-section"><div class="profile-section-head"><span class="profile-section-icon" data-icon="history"></span><div><h3>Historikk</h3><p class="muted">Dei siste registreringane på dette dyret.</p></div></div>${events.length?`<div class="profile-history">${events.map(e=>`<div class="profile-history-item"><div class="activity-icon" data-icon="${e.type==="Lamming"?"lamb":"stethoscope"}"></div><div><strong>${esc(e.type)}</strong><div class="subtle">${esc(formatDateNo(e.date))} · ${esc(e.user||"Ukjend")}</div><div>${esc(e.note||"")}</div></div></div>`).join("")}</div>`:`<div class='empty'>Ingen historikk for dette dyret enno.</div>`}</div>`;
+ hydrateIcons($("animalModalBody"));
+ $('animalModal').classList.add('open');
+}
+function openAnimalEdit(id){
+ const a=data.animals.find(x=>x.id===id); if(!a)return;
+ $("editAnimalId").value=a.id; $("animalEditTitle").textContent=`Rediger ${a.individnummer||"dyr"}`;
+ $("editIndividnummer").value=a.individnummer||""; $("editOyremerke").value=a.oyremerke||""; $("editKjonn").value=a.kjonn||"søye"; $("editDyregruppe").value=a.dyregruppe||""; $("editFodselsdato").value=a.fodselsdato||""; $("editRase").value=a.rase||""; $("editMorText").value=animalNumber(a.mor_id)||""; $("editFarText").value=animalNumber(a.far_id)||""; $("editFodselsvekt").value=a.fodselsvekt??""; $("editOyrekllype").value=a.oyreklype||""; $("editStatus").value=normStr(a.status)==="solgt"?"Slaktet":normStr(a.status)==="aktiv"?(normStr(a.kjonn)==="lam"?"Livlam":"Aktiv i avl"):a.status||"Livlam"; $("editNotat").value=a.notat||"";
+ toggleEditEweGroup(); $('animalEditModal').classList.add('open');
+}
+function closeAnimalEdit(){$("animalEditModal").classList.remove("open")}
+function toggleEditEweGroup(){const isEwe=$("editKjonn")?.value==="søye"; if($("editEweGroupWrap"))$("editEweGroupWrap").style.display=isEwe?"":"none"}
+$("editKjonn")?.addEventListener("change",toggleEditEweGroup);
+$("animalEditForm")?.addEventListener("submit",async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;b.textContent="Lagrar...";try{const id=val("editAnimalId"),a=data.animals.find(x=>x.id===id);if(!a)throw new Error("Fann ikkje dyret.");const morText=val("editMorText").trim(),farText=val("editFarText").trim();const mor=data.animals.find(x=>x.individnummer===morText&&x.id!==id),far=data.animals.find(x=>x.individnummer===farText&&x.id!==id);if(morText&&!mor)throw new Error("Fann ikkje mora med dette individnummeret.");if(farText&&!far)throw new Error("Fann ikkje faren med dette individnummeret.");const row={individnummer:val("editIndividnummer").trim(),oyremerke:val("editOyremerke").trim()||null,kjonn:val("editKjonn")||null,fodselsdato:val("editFodselsdato")||null,rase:val("editRase").trim()||null,mor_id:mor?.id||null,far_id:far?.id||null,fodselsvekt:val("editFodselsvekt")?Number(val("editFodselsvekt")):null,oyreklype:val("editOyrekllype").trim()||null,status:val("editStatus")||"Livlam",notat:val("editNotat").trim()||null,dyregruppe:val("editDyregruppe")||null};if(!row.individnummer)throw new Error("Skriv inn individnummer.");const {error}=await supabaseClient.from("animals").update(row).eq("id",id);if(error)throw error;closeAnimalEdit();closeAnimalModal();await loadAll({tables:["animals"]});toast("Dyreprofilen er oppdatert ✓")}catch(err){errorToast("Kunne ikkje oppdatere dyret: "+err.message)}finally{b.disabled=false;b.textContent="💾 Lagre endringar"}});
+
+function closeAnimalModal(){$("animalModal").classList.remove("open")}
+window.openBreedingEditor=function(eweId){const ewe=data.animals.find(a=>a.id===eweId&&isEweAnimal(a));if(!ewe)return;const box=$("breedingEditor_"+eweId);if(!box)return;const records=data.lambings.filter(x=>x.animalId===ewe.id||normStr(x.mother)===normStr(ewe.individnummer)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));if(!records.length){box.innerHTML='<p class="empty">Det er ikkje registrert lamming på denne søya enno.</p>';box.classList.remove("hidden");return}box.innerHTML=records.map(record=>`<form class="breeding-edit-card" onsubmit="saveBreedingRecord(event,'${record.id}','${ewe.id}')"><div class="breeding-edit-head"><strong>Lamming ${formatDateNo(record.date)}</strong><span class="subtle">${(record.lambs||[]).length} individ</span></div><div class="breeding-edit-fields"><label>Fødselsforløp<select id="breedProcess_${record.id}"><option${(record.birthProcess||"Normal")==="Normal"?" selected":""}>Normal</option><option${record.birthProcess==="Lett hjelp"?" selected":""}>Lett hjelp</option><option${record.birthProcess==="Vanskeleg"?" selected":""}>Vanskeleg</option></select></label><label>Jurstatus<select id="breedUdder_${record.id}"><option${(record.udderStatus||"OK")==="OK"?" selected":""}>OK</option><option${record.udderStatus==="Tette spenar"?" selected":""}>Tette spenar</option><option${record.udderStatus==="Mastitt"?" selected":""}>Mastitt</option><option${record.udderStatus==="Store spenar"?" selected":""}>Store spenar</option></select></label></div>${(record.lambs||[]).length?`<div class="breeding-lamb-weights">${record.lambs.map((l,i)=>`<label>Lam ${esc(l.individnummer||i+1)} · fødselsvekt (kg)<input id="breedWeight_${record.id}_${i}" type="number" min="0" step="0.1" value="${l.fodselsvekt??""}" placeholder="Ikkje registrert"></label>`).join("")}</div>`:`<p class="subtle">Ingen individkort for lam er knytte til denne registreringa.</p>`}<button class="primary" type="submit">Lagre avlsdata</button></form>`).join("");box.classList.remove("hidden");hydrateIcons(box)};
+window.saveBreedingRecord=async function(e,eventId,eweId){e.preventDefault();const button=e.submitter;button.disabled=true;button.textContent="Lagrar...";try{await requireSession();const record=data.lambings.find(x=>x.id===eventId),ewe=data.animals.find(x=>x.id===eweId);if(!record||!ewe)throw new Error("Fann ikkje lamminga eller søya.");const birthProcess=$("breedProcess_"+eventId).value,udderStatus=$("breedUdder_"+eventId).value,lambs=(record.lambs||[]).map((l,i)=>{const raw=$("breedWeight_"+eventId+"_"+i)?.value||"",weight=raw===""?null:Number(raw);if(weight!==null&&(!Number.isFinite(weight)||weight<0))throw new Error(`Ugyldig vekt på lam ${l.individnummer||i+1}.`);return {...l,fodselsvekt:weight}});const desc={_kind:"lamming",user:record.user,mother:record.mother,count:record.count,note:record.note,lammekode:record.lammekode,birthProcess,udderStatus,lambs};const {error:eventError}=await supabaseClient.from("events").update({description:JSON.stringify(desc)}).eq("id",eventId);if(eventError)throw eventError;for(const lamb of lambs){const animal=data.animals.find(a=>normStr(a.individnummer)===normStr(lamb.individnummer));if(animal){const {error}=await supabaseClient.from("animals").update({fodselsvekt:lamb.fodselsvekt}).eq("id",animal.id);if(error)throw error}}
+ const linkedJournal=data.health.filter(h=>h.birth_event_id===eventId);if(udderStatus==="OK"){for(const h of linkedJournal){const {error}=await supabaseClient.from("health_records").delete().eq("id",h.id);if(error)throw error}}else{const row={animal_id:ewe.id,date:record.date,type:`Jurstatus ved lamming: ${udderStatus}`,treatment:null,withdrawal_end:null,note:`Registrert ved lamming, jurstatus: ${udderStatus}. Lamming ${formatDateNo(record.date)}.`,user_id:currentSession?.user?.id||null,user_name:data.currentUser,birth_event_id:eventId};if(linkedJournal.length){const {error}=await supabaseClient.from("health_records").update(row).eq("id",linkedJournal[0].id);if(error)throw error}else{const {error}=await supabaseClient.from("health_records").insert(row);if(error)throw error}}closeAnimalModal();await loadAll({tables:["events","animals","health_records"]});openAnimalModal(eweId);toast("Avlsdata og jurjournal er oppdatert ✓")}catch(err){errorToast("Kunne ikkje lagre avlsdata: "+err.message)}finally{button.disabled=false;button.textContent="Lagre avlsdata"}};
+async function deleteAnimal(id){const a=data.animals.find(x=>x.id===id);if(!a)return;const linked=data.animals.some(x=>x.mor_id===id||x.far_id===id)||data.health.some(x=>x.animal_id===id)||data.weights.some(x=>x.animal_id===id)||data.lambings.some(x=>x.animalId===id)||data.matings.some(x=>x.eweId===id||x.ramId===id)||data.adoptions.some(x=>x.lambId===id||x.biologicalMotherId===id||x.adoptiveMotherId===id);if(linked){errorToast(`Dyret ${a.individnummer} har familie- eller historikkdata. Endre status til Død eller Slaktet i dyreprofilen i staden for å slette det.`);return}if(!confirm(`Slette dyr ${a.individnummer}?`))return;try{await requireSession();const {error}=await supabaseClient.from("animals").delete().eq("id",id);if(error)throw error;await loadAll({tables:["animals"]});toast("Dyret er sletta")}catch(e){errorToast("Kunne ikkje slette dyret: "+e.message)}}
+
+document.getElementById("animalForm").addEventListener("submit",async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;b.textContent="Lagrar...";try{const morText=val("morText").trim(),farText=val("farText").trim();const mor=data.animals.find(a=>a.individnummer===morText),far=data.animals.find(a=>a.individnummer===farText);if(morText&&!mor)throw new Error("Fann ikkje mora med dette individnummeret.");if(farText&&!far)throw new Error("Fann ikkje faren med dette individnummeret.");const row={individnummer:val("individnummer").trim(),oyremerke:val("oyremerke").trim()||null,kjonn:val("kjonn")||null,fodselsdato:val("fodselsdato")||null,rase:val("rase").trim()||null,mor_id:mor?.id||null,far_id:far?.id||null,fodselsvekt:val("fodselsvekt")?Number(val("fodselsvekt")):null,oyreklype:val("oyreklype").trim()||null,status:val("status")||"Livlam",notat:val("notat").trim()||null,dyregruppe:val("kjonn")==="søye"?(val("dyregruppe")||null):null};if(!row.individnummer)throw new Error("Skriv inn individnummer.");await insertAndReload("animals",row,"Dyret er lagra ✓","animals");e.target.reset()}catch(err){errorToast("Kunne ikkje lagre dyret: "+err.message)}finally{b.disabled=false;b.textContent="💾 Lagre dyr"}});
+
+function renderLogs(){
+  const q=val("logSearch").toLowerCase(), type=val("logTypeFilter");
+  let logs=data.logs.filter(x=>`${x.user} ${x.type} ${x.animal} ${x.note}`.toLowerCase().includes(q));
+  if(type!=="all")logs=logs.filter(x=>x.type===type);
+  const todayStr=today(), last30=new Date(); last30.setDate(last30.getDate()-30);
+  const recent=data.logs.filter(x=>new Date(x.date+"T12:00:00")>=last30);
+  $("logSummary").innerHTML=`<div class="overview-card"><span class="overview-icon" data-icon="stethoscope"></span><div><small>TOTALT STELL</small><strong>${data.logs.length}</strong></div></div><div class="overview-card"><span class="overview-icon" data-icon="calendar"></span><div><small>SISTE 30 DAGAR</small><strong>${recent.length}</strong></div></div><div class="overview-card"><span class="overview-icon" data-icon="user"></span><div><small>SISTE UTFØRT AV</small><strong>${esc(data.logs[0]?.user||"–")}</strong></div></div>`;
+  $("logList").innerHTML=logs.length?logs.map(x=>{const icon=x.type==="Medisin"?"heart":x.type==="Veiing"?"scale":x.type==="Flytting"?"leaf":x.type==="Fôring"?"sheep":"stethoscope";return `<div class="log-item"><div class="log-icon" data-icon="${icon}"></div><div class="log-main"><div class="log-title"><strong>${esc(x.type)}</strong>${x.animal?`<span class="badge">${esc(x.animal)}</span>`:""}</div><div class="log-meta"><span>${formatDateNo(x.date)}</span><span>👤 ${esc(x.user)}</span></div><div class="log-note">${esc(x.note||"Ingen merknad")}</div></div><button class="danger-btn" onclick="deleteLog('${x.id}')">Slett</button></div>`}).join(""):"<div class='empty-large'>🩺 Ingen dyrestell passar søket.</div>";
+  hydrateIcons();
+}
+document.getElementById("logForm").addEventListener("submit",async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;b.textContent="Lagrar...";try{const animalText=val("logAnimal").trim(),animal=data.animals.find(a=>a.individnummer===animalText);if(animalText&&!animal)throw new Error("Fann ikkje dyret med dette individnummeret.");await insertAndReload("events",{animal_id:animal?.id||null,date:val("logDate"),type:val("logType"),description:JSON.stringify({_kind:"dyrestell",user:data.currentUser,animal:animalText,note:val("logNote").trim()})},"Dyrestell er registrert ✓","logs");e.target.reset();$("logDate").value=today()}catch(err){errorToast("Kunne ikkje lagre dyrestellet: "+err.message)}finally{b.disabled=false;b.textContent="＋ Registrer dyrestell"}});
+
+function normStr(v){return String(v??"").trim().toLowerCase()}
+function isActiveAnimal(a){const st=normStr(a?.status);return !!a && st!=="død" && st!=="solgt" && st!=="slaktet"}
+function animalStatusLabel(a){const st=normStr(a?.status);if(st==="solgt")return "Slaktet";if(st==="aktiv")return normStr(a?.kjonn)==="lam"?"Livlam":"Aktiv i avl";return a?.status||""}
+function isEweAnimal(a){const sex=normStr(a?.kjonn),group=normStr(a?.dyregruppe);return !!a && isActiveAnimal(a) && (sex==="søye"||group.includes("søye")||group==="jømber"||group==="jomber")}
+function isLambAnimal(a){
+  const group=normStr(a?.dyregruppe);
+  const note=normStr(a?.notat);
+  return !!a && isActiveAnimal(a) && (normStr(a.kjonn)==="lam" || group.includes("lam") || note.startsWith("registrert ved lamming"));
+}
+function findBiologicalMotherForLamb(a){
+  if(!a)return null;
+  if(a.mor_id){const m=data.animals.find(x=>x.id===a.mor_id);if(m)return m;}
+  const match=data.lambings.find(l=>Array.isArray(l.lambs)&&l.lambs.some(x=>normStr(x.individnummer)===normStr(a.individnummer)));
+  return match ? data.animals.find(x=>normStr(x.individnummer)===normStr(match.mother)) || null : null;
+}
+function renderLambMotherSelect(){
+  let sel=$("lambMother"); if(!sel)return;
+  if(sel.tagName!=="SELECT"){
+    const replacement=document.createElement("select");
+    replacement.id="lambMother";replacement.name="lambMother";replacement.required=true;
+    sel.replaceWith(replacement);sel=replacement;
+  }
+  const current=sel.value;
+  const ewes=data.animals.filter(isEweAnimal).sort((a,b)=>String(a.individnummer||"").localeCompare(String(b.individnummer||""),undefined,{numeric:true}));
+  sel.innerHTML=`<option value="">${ewes.length?"Vel søye frå besetninga …":"Ingen aktive søyer funne"}</option>`+ewes.map(a=>`<option value="${esc(a.individnummer)}">${esc(a.individnummer)}${a.dyregruppe?` · ${esc(String(a.dyregruppe).replaceAll("-"," "))}`:""}${a.oyremerke?` · øyremerke ${esc(a.oyremerke)}`:""}</option>`).join("");
+  if(ewes.some(a=>String(a.individnummer)===current))sel.value=current;
+}
+function findAnimalByNumber(number){
+  const n=String(number||"").trim().toLowerCase();
+  if(!n)return null;
+  return data.animals.find(a=>String(a.individnummer||"").trim().toLowerCase()===n)||null;
+}
+function renderAdoptionSelects(){
+  const lambSelect=$("adoptionLamb"),bioSelect=$("adoptionBioMother"),adoptSelect=$("adoptionMother");
+  if(!lambSelect||!bioSelect||!adoptSelect)return;
+  const prior={lamb:lambSelect.value,bio:bioSelect.value,adopt:adoptSelect.value};
+  const byNumber=(a,b)=>String(a.individnummer||"").localeCompare(String(b.individnummer||""),undefined,{numeric:true});
+  const lambs=data.animals.filter(isLambAnimal).sort(byNumber),ewes=data.animals.filter(isEweAnimal).sort(byNumber);
+  lambSelect.innerHTML=`<option value="">${lambs.length?"Vel lam frå besetninga …":"Ingen aktive lam funne"}</option>`+lambs.map(a=>`<option value="${esc(a.individnummer)}">${esc(a.individnummer)}${a.dyregruppe?` · ${esc(String(a.dyregruppe).replaceAll("-"," "))}`:""}${a.oyremerke?` · øyremerke ${esc(a.oyremerke)}`:""}</option>`).join("");
+  const eweOptions=`<option value="">Vel søye frå besetninga …</option>`+ewes.map(a=>`<option value="${esc(a.individnummer)}">${esc(a.individnummer)}${a.oyremerke?` · øyremerke ${esc(a.oyremerke)}`:""}</option>`).join("");
+  bioSelect.innerHTML=eweOptions;adoptSelect.innerHTML=eweOptions.replace("Vel søye frå besetninga …","Vel adoptivmor frå besetninga …");
+  if(lambs.some(a=>String(a.individnummer)===prior.lamb))lambSelect.value=prior.lamb;
+  if(ewes.some(a=>String(a.individnummer)===prior.bio))bioSelect.value=prior.bio;
+  if(ewes.some(a=>String(a.individnummer)===prior.adopt))adoptSelect.value=prior.adopt;
+  updateAdoptionBioMother(false);
+}
+function updateAdoptionBioMother(force=true){
+  const hint=$("adoptionBioHint");
+  const lamb=findAnimalByNumber(val("adoptionLamb"));
+  if(!hint)return;
+  if(!lamb){hint.textContent="Vel lammet du vil registrere adopsjon for.";return}
+  const mother=findBiologicalMotherForLamb(lamb),bioSelect=$("adoptionBioMother");
+  if(mother&&bioSelect&&(force||!bioSelect.value)&&[...bioSelect.options].some(o=>o.value===String(mother.individnummer)))bioSelect.value=mother.individnummer;
+  hint.textContent=mother?`Biologisk mor er sett til ${mother.individnummer}. Du kan endre valet.`:"Vel biologisk mor frå besetninga.";
+}
+
+function renderAdoptions(){
+  renderAdoptionSelects();
+  const list=$("adoptionList"),total=$("adoptionTotal"); if(!list||!total)return;
+  total.textContent=`${data.adoptions.length} registrert`;
+  list.innerHTML=data.adoptions.length?data.adoptions.map(x=>{const lamb=data.animals.find(a=>a.id===x.lambId),bio=data.animals.find(a=>a.id===x.biologicalMotherId),adopt=data.animals.find(a=>a.id===x.adoptiveMotherId);return `<div class="card task-item adoption-item"><div class="stat-icon" data-icon="family"></div><div style="flex:1"><strong>Lam ${esc(lamb?.individnummer||'–')}</strong><div class="task-meta"><span class="badge">Biologisk mor ${esc(bio?.individnummer||'–')}</span><span class="badge">Adoptivmor ${esc(adopt?.individnummer||'–')}</span><span class="badge">${esc(x.date)}</span></div>${x.note?`<div class="subtle">${esc(x.note)}</div>`:''}<div class="subtle">👤 ${esc(x.user||'Ukjend')}</div><div class="mini-actions"><button class="soft-btn" type="button" onclick="openAnimalModal('${esc(x.lambId)}')">Sjå lam</button><button class="danger-btn" type="button" onclick="deleteAdoption('${esc(x.id)}')">Slett</button></div></div></div>`}).join(''):'<div class="empty-large">🐑 Ingen adopsjonar registrert enno.</div>';
+  hydrateIcons(list);
+}
+async function deleteAdoption(id){if(!confirm("Vil du slette denne adopsjonen? Lammet blir ikkje sletta."))return;try{await requireSession();const {error}=await supabaseClient.from("events").delete().eq("id",id);if(error)throw error;await loadAll({tables:["events"]});toast("Adopsjonen er sletta")}catch(e){errorToast("Kunne ikkje slette adopsjonen: "+e.message)}}
+
+function renderLambFields(){
+  const n=Math.min(8,Math.max(1,Number(val("lambCount")||1))),details=$("lambDetails"),wasOpen=details?.open||n>1;
+  if(!resetLambDraftCapture){
+    for(let i=1;i<=8;i++){
+      const number=$("lambInd"+i),sex=$("lambSex"+i),weight=$("lambWeight"+i),health=$("lambHealth"+i);
+      if(number||sex)lambDrafts[i]={number:number?.value||"",sex:sex?.value||"saulam",weight:weight?.value||"",health:health?.value||"Frisk"};
+    }
+  }
+  let html=`<details id="lambDetails" class="lamb-extra-fields" open><summary>Opplysningar om kvart lam</summary><p>Individnummer trengst for å opprette profilen og knyte fødselsvekt og helse til rett lam.</p><div class="lamb-extra-grid">`;
+  for(let i=1;i<=n;i++){
+    const draft=lambDrafts[i]||{number:"",sex:"saulam",weight:"",health:"Frisk"};
+    html+=`<div class="lamb-birth-card"><strong>Lam ${i}</strong><label>Individnummer<input id="lambInd${i}" value="${esc(draft.number)}" placeholder="t.d. 26101" required></label><label>Type<select id="lambSex${i}"><option value="saulam"${draft.sex==="saulam"?" selected":""}>Saulam</option><option value="vêrlam"${draft.sex==="vêrlam"?" selected":""}>Vêrlam</option></select></label><label>Fødselsvekt (kg)<input id="lambWeight${i}" type="number" min="0" step="0.1" value="${esc(draft.weight)}" placeholder="T.d. 4,2"></label><label>Helse på lammet<select id="lambHealth${i}"><option${draft.health==="Frisk"?" selected":""}>Frisk</option><option${draft.health==="Svak"?" selected":""}>Svak</option><option${draft.health==="Dødfødd"?" selected":""}>Dødfødd</option></select></label></div>`;
+  }
+  html+="</div></details>";$("lambFields").innerHTML=html;resetLambDraftCapture=false;
+}
+$("lambForm")?.addEventListener("reset",()=>{lambDrafts={};resetLambDraftCapture=true});
+document.getElementById("adoptionForm")?.addEventListener("submit",async e=>{
+  e.preventDefault();const b=e.submitter;b.disabled=true;b.textContent="Lagrar...";
+  try{
+    await requireSession();
+    const lambNumber=val("adoptionLamb").trim();
+    const bioNumber=val("adoptionBioMother").trim();
+    const adoptiveNumber=val("adoptionMother").trim();
+    const lamb=findAnimalByNumber(lambNumber);
+    const biological=findAnimalByNumber(bioNumber);
+    const adoptive=findAnimalByNumber(adoptiveNumber);
+    if(!lamb)throw new Error(`Fann ikkje lammet ${lambNumber||""}. Sjekk individnummeret i Besetning.`);
+    if(!isLambAnimal(lamb))throw new Error(`Individ ${lamb.individnummer} er ikkje registrert som eit lam.`);
+    if(!biological)throw new Error(`Fann ikkje biologisk mor ${bioNumber||""} i Besetning.`);
+    if(!isEweAnimal(biological))throw new Error(`Individ ${bioNumber} er ikkje registrert som søye.`);
+    if(!adoptive)throw new Error(`Fann ikkje adoptivmor ${adoptiveNumber||""} i Besetning.`);
+    if(!isEweAnimal(adoptive))throw new Error(`Individ ${adoptiveNumber} er ikkje registrert som søye.`);
+    if(adoptive.id===biological.id)throw new Error("Adoptivmor kan ikkje vere den biologiske mora.");
+    if(data.adoptions.some(x=>x.lambId===lamb.id))throw new Error("Dette lammet har allereie ei registrert adoptivmor.");
+    const desc=JSON.stringify({_kind:"adoption",lambId:lamb.id,biologicalMotherId:biological.id,adoptiveMotherId:adoptive.id,date:val("adoptionDate"),note:val("adoptionNote").trim(),user:data.currentUser});
+    await insertAndReload("events",{animal_id:lamb.id,date:val("adoptionDate"),type:"Adopsjon",description:desc},"Adopsjonen er registrert 🐑","adoption");
+    e.target.reset();$("adoptionDate").value=today();renderAdoptionSelects();
+  }catch(err){errorToast("Kunne ikkje lagre adopsjonen: "+err.message)}finally{b.disabled=false;b.textContent="＋ Registrer adopsjon"}
+});
+document.getElementById("lambForm").addEventListener("submit",async e=>{
+  e.preventDefault();const b=e.submitter||e.target.querySelector('[type="submit"]');b.disabled=true;b.textContent="Lagrar...";
+  let eventId=null,animalIds=[],healthIds=[],committed=false;
+  try{
+    const session=await requireSession();
+    const motherNumber=val("lambMother").trim(),mother=data.animals.find(a=>String(a.individnummer||"").trim().toLocaleLowerCase("nn-NO")===motherNumber.toLocaleLowerCase("nn-NO")&&isEweAnimal(a));
+    if(!mother)throw new Error("Fann ikkje ei aktiv søye i Besetning.");
+    const date=val("lambDate"),count=Math.max(1,Math.min(8,parseInt(val("lambCount")||"1",10)));
+    if(!date)throw new Error("Vel dato for lamminga.");
+    const lambs=[],numbers=new Set();
+    for(let i=1;i<=count;i++){
+      const number=val(`lambInd${i}`).trim(),sex=val(`lambSex${i}`)||"saulam",weightText=val(`lambWeight${i}`).trim(),healthStatus=val(`lambHealth${i}`)||"Frisk";
+      if(!number)throw new Error(`Skriv inn individnummer for lam ${i}.`);
+      const key=number.toLocaleLowerCase("nn-NO");
+      if(numbers.has(key))throw new Error(`Individnummer ${number} er skrive inn fleire gonger.`);
+      numbers.add(key);
+      if(data.animals.some(a=>String(a.individnummer||"").trim().toLocaleLowerCase("nn-NO")===key))throw new Error(`Individnummer ${number} finst allereie.`);
+      const weight=weightText===""?null:Number(weightText);
+      if(weight!==null&&(!Number.isFinite(weight)||weight<0))throw new Error(`Skriv inn ei gyldig fødselsvekt for lam ${i}.`);
+      lambs.push({individnummer:number,kjonn:"lam",dyregruppe:sex,fodselsvekt:weight,healthStatus});
+    }
+    const motherText=mother.individnummer,birthProcess=val("birthProcess")||"Normal",udderStatus=val("udderStatus")||"OK";
+    const desc=JSON.stringify({_kind:"lamming",user:data.currentUser,mother:motherText,count,note:val("lambNote").trim(),lammekode:val("lambCode"),birthProcess,udderStatus,lambs});
+    const {data:createdEvent,error:eventError}=await supabaseClient.from("events").insert({animal_id:mother.id,date,type:"Lamming",description:desc}).select("id").single();
+    if(eventError)throw eventError;eventId=createdEvent.id;
+    if(udderStatus!=="OK"){
+      const {data:createdHealth,error:healthError}=await supabaseClient.from("health_records").insert({animal_id:mother.id,date,type:`Jurstatus ved lamming: ${udderStatus}`,treatment:null,withdrawal_end:null,note:`Registrert ved lamming, jurstatus: ${udderStatus}. Lamming ${formatDateNo(date)}.`,user_id:session?.user?.id||null,user_name:data.currentUser,birth_event_id:eventId}).select("id").single();
+      if(healthError)throw healthError;healthIds.push(createdHealth.id);
+    }
+    for(const l of lambs){
+      const status=l.healthStatus==="Dødfødd"?"Død":"Livlam";
+      const animalRow={individnummer:l.individnummer,kjonn:l.kjonn,dyregruppe:l.dyregruppe,fodselsdato:date,fodselsvekt:l.fodselsvekt,mor_id:mother.id,status,notat:`Helse ved fødsel: ${l.healthStatus} · Mor ID: ${motherText}`};
+      const {data:createdAnimal,error:animalError}=await supabaseClient.from("animals").insert(animalRow).select("id").single();
+      if(animalError)throw animalError;animalIds.push(createdAnimal.id);
+      if(l.healthStatus!=="Frisk"){
+        const healthType=l.healthStatus==="Dødfødd"?"Dødfødd":"Svak ved fødsel";
+        const healthRow={animal_id:createdAnimal.id,date,type:healthType,treatment:null,withdrawal_end:null,note:`Registrert ved fødsel, Mor ID: ${motherText}`,user_id:session?.user?.id||null,user_name:data.currentUser};
+        const {data:createdHealth,error:healthError}=await supabaseClient.from("health_records").insert(healthRow).select("id").single();
+        if(healthError)throw healthError;healthIds.push(createdHealth.id);
+      }
+    }
+    committed=true;
+    await loadAll({tables:["events","animals","health_records"]});
+    toast(`Lamming registrert · ${count} lam lagra med fødselsvekt og helseopplysningar 🐑`);
+    e.target.reset();$("lambDate").value=today();$("lambCount").value=1;renderLambFields();
+  }catch(err){
+    if(!committed){
+      for(const id of healthIds){const r=await supabaseClient.from("health_records").delete().eq("id",id);if(r.error)console.error("Kunne ikkje rydde opp helseoppføring:",r.error)}
+      for(const id of animalIds){const r=await supabaseClient.from("animals").delete().eq("id",id);if(r.error)console.error("Kunne ikkje rydde opp lam:",r.error)}
+      if(eventId){const r=await supabaseClient.from("events").delete().eq("id",eventId);if(r.error)console.error("Kunne ikkje rydde opp lamming:",r.error)}
+    }
+    errorToast(committed?"Lamminga er lagra, men oversikta kunne ikkje oppdaterast: "+err.message:"Kunne ikkje lagre lamminga: "+err.message)
+  }
+  finally{b.disabled=false;b.textContent="＋ Registrer lamming"}
+});
+function renderLambs(){
+  const l=[...data.lambings].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const totalLambs=l.reduce((n,x)=>n+Number(x.count||0),0);
+  $("lambTotal").textContent=`${l.length} registrerte lammingar`;
+  $("lambSummary").innerHTML=`<div class="overview-card"><span class="overview-icon" data-icon="lamb"></span><div><small>LAMMINGAR</small><strong>${l.length}</strong></div></div><div class="overview-card"><span class="overview-icon" data-icon="sheep"></span><div><small>REGISTRERTE LAM</small><strong>${totalLambs}</strong></div></div><div class="overview-card"><span class="overview-icon" data-icon="calendar"></span><div><small>SISTE LAMMING</small><strong>${l[0]?formatDateNo(l[0].date):"–"}</strong></div></div>`;
+  $("lambList").innerHTML=l.length?l.map(x=>{
+    const childHtml=x.lambs?.length?x.lambs.map((l,i)=>`<div class="lamb-child"><span data-icon="lamb"></span><strong>${esc(l.individnummer||`Lam ${i+1}`)}</strong><small>${esc(l.dyregruppe==="saulam"?"Saulam":l.dyregruppe==="vêrlam"?"Vêrlam":"Lam")}${l.fodselsvekt!=null?` · ${esc(l.fodselsvekt)} kg`:""}</small><span class="badge ${l.healthStatus==="Frisk"?"":l.healthStatus==="Dødfødd"?"red":"gold"}">${esc(l.healthStatus||"Ikkje registrert")}</span></div>`).join(""):"<div class=\"subtle lamb-none\">Individnummer på lamma er ikkje registrert.</div>";
+    const process=x.birthProcess?` · ${esc(x.birthProcess)}`:"",udder=x.udderStatus?` · Jur: ${esc(x.udderStatus)}`:"";
+    return `<article class="lamb-item"><div class="lamb-card-head"><div class="lamb-date"><strong>${formatDateNo(x.date)}</strong><span>${x.count} ${Number(x.count)===1?"lam":"lam"}</span></div><div class="lamb-main"><div class="lamb-title"><span class="lamb-icon" data-icon="ewe"></span><strong>Mor ${esc(x.mother)}</strong><span class="badge">${x.count} lam</span></div><div class="lamb-meta">Registrert av ${esc(x.user||"Ukjend")}</div><div class="lamb-facts">${x.birthProcess?`<span class="lamb-fact"><small>FØDSEL</small><strong>${esc(x.birthProcess)}</strong></span>`:""}${x.udderStatus?`<span class="lamb-fact ${x.udderStatus!=="OK"?"lamb-fact-warn":""}"><small>JURSTATUS</small><strong>${esc(x.udderStatus)}</strong></span>`:""}${x.lammekode?`<span class="lamb-fact"><small>LAMMEKODE</small><strong>${esc(x.lammekode)}</strong></span>`:""}</div>${x.note?`<p class="lamb-note">${esc(x.note)}</p>`:""}</div><button class="danger-btn lamb-delete" onclick="deleteLambing('${x.id}')">Slett</button></div><div class="lamb-children-heading">Lam fødde i denne lamminga</div><div class="lamb-children">${childHtml}</div></article>`;
+  }).join(""):"<div class='empty-large'>🍼 Ingen lammingar registrert enno.</div>";
+  hydrateIcons();
+}
+async function deleteLambing(id){const record=data.lambings.find(x=>x.id===id);if(!record)return;const linked=data.animals.filter(a=>(record.lambs||[]).some(l=>normStr(l.individnummer)===normStr(a.individnummer)));if(linked.length){errorToast("Denne lamminga har allereie oppretta individkort for lamma. For å ta vare på dyrehistorikken kan ho ikkje slettast her.");return}if(!confirm("Vil du slette denne lammingsregistreringa?"))return;try{await requireSession();const {error}=await supabaseClient.from("events").delete().eq("id",id);if(error)throw error;const journal=data.health.filter(h=>h.birth_event_id===id);for(const h of journal){const r=await supabaseClient.from("health_records").delete().eq("id",h.id);if(r.error)throw r.error}await loadAll({tables:["events","health_records"]});toast("Lammingsregistreringa er sletta")}catch(e){errorToast("Kunne ikkje slette lamminga: "+e.message)}}
+
+function getEweBreedingMetrics(ewe){
+  const records=data.lambings.filter(x=>x.animalId===ewe.id||normStr(x.mother)===normStr(ewe.individnummer));
+  const lambsByNumber=new Map();
+  data.animals.filter(x=>x.mor_id===ewe.id&&Number(x.fodselsvekt)>0).forEach(x=>lambsByNumber.set(normStr(x.individnummer),Number(x.fodselsvekt)));
+  records.forEach(x=>(x.lambs||[]).forEach(l=>{const weight=Number(l.fodselsvekt);if(l.individnummer&&Number.isFinite(weight)&&weight>0)lambsByNumber.set(normStr(l.individnummer),weight)}));
+  const weights=[...lambsByNumber.values()],average=weights.length?weights.reduce((sum,w)=>sum+w,0)/weights.length:null;
+  const processFor=x=>x.birthProcess||(/med hjelp/i.test(x.lammekode||"")?"Lett hjelp":/utan hjelp|uten hjelp/i.test(x.lammekode||"")?"Normal":"");
+  const rated=records.map(x=>({record:x,process:processFor(x)})).filter(x=>x.process);
+  const assisted=rated.filter(x=>x.process!=="Normal").length;
+  const latestUdder=[...records].filter(x=>x.udderStatus).sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0]?.udderStatus||"";
+  const herdWeights=data.animals.filter(x=>x.kjonn==="lam"&&Number(x.fodselsvekt)>0).map(x=>Number(x.fodselsvekt));
+  const herdAverage=herdWeights.length?herdWeights.reduce((sum,w)=>sum+w,0)/herdWeights.length:null;
+  let score=null;
+  if(records.length&&(average!==null||rated.length||latestUdder)){
+    const weightScore=average!==null&&herdAverage!==null?Math.max(1,Math.min(5,3+(average-herdAverage)*1.2)):3;
+    const helpPenalty=rated.length?(assisted/rated.length)*1.5:0;
+    const udderPenalty=(latestUdder&&latestUdder!=="OK")?0.5:0;
+    score=Math.max(1,Math.min(5,weightScore-helpPenalty-udderPenalty));
+  }
+  return{records,lambCount:records.reduce((sum,x)=>sum+Number(x.count||0),0),average,assisted,ratedCount:rated.length,latestUdder,score};
+}
+
+function taskMeta(t){const x=parseJson(t.description,{_kind:"task"});return{created_by:x.created_by||"",completed_by:x.completed_by||"",completed_at:x.completed_at||null,type:x.type||"Dagleg",priority:x.priority||"normal",due:x.due||""}}
+document.getElementById("taskForm").addEventListener("submit",async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;b.textContent="Lagrar...";try{const title=val("taskTitle").trim();if(!title)return;const meta={_kind:"task",created_by:data.currentUser,completed_by:null,completed_at:null,type:val("taskType"),priority:val("taskPriority"),due:val("taskDue")||null};await insertAndReload("tasks",{title,description:JSON.stringify(meta),day:meta.due||null,time:null,repeat_weekly:false,completed:false},"Gjeremålet er lagt til ✓","tasks");e.target.reset()}catch(err){errorToast("Kunne ikkje lagre gjeremålet: "+err.message)}finally{b.disabled=false;b.textContent="＋ Legg til gjeremål"}});
+async function toggleTask(id){const t=data.tasks.find(x=>x.id===id);if(!t)return;try{await requireSession();const m=taskMeta(t),done=!t.completed;m.completed_by=done?data.currentUser:null;m.completed_at=done?new Date().toISOString():null;const {data:updated,error}=await supabaseClient.from("tasks").update({completed:done,description:JSON.stringify(m)}).eq("id",id).select("*").single();if(error)throw error;const i=data.tasks.findIndex(x=>x.id===id);if(i>=0)data.tasks[i]=updated;renderAll();toast(done?`✓ Utført av ${data.currentUser}`:"Gjeremålet er opna igjen")}catch(err){errorToast("Kunne ikkje oppdatere gjeremålet: "+err.message)}}
+function renderTasks(){const open=data.tasks.filter(x=>!x.completed),done=data.tasks.filter(x=>x.completed);const arr=[...open,...done];$("taskList").innerHTML=arr.length?arr.map(t=>{const m=taskMeta(t),priority=m.priority==="high"?"gold":m.priority==="low"?"blue":"",performed=t.completed&&m.completed_by?`<div class="task-performed">✓ Utført av <strong>${esc(m.completed_by)}</strong>${m.completed_at?` · ${esc(new Date(m.completed_at).toLocaleString("nb-NO",{dateStyle:"short",timeStyle:"short"}))}`:""}</div>`:"";return `<div class="card task-item"><button class="check ${t.completed?"done":""}" onclick="toggleTask('${t.id}')">${t.completed?"✓":"○"}</button><div><strong class="${t.completed?"done":""}">${esc(t.title)}</strong><div class="task-meta"><span class="badge ${priority}">${esc(m.type)}</span>${m.due?`<span class="badge">Frist ${esc(m.due)}</span>`:""}</div>${performed}</div><button class="link task-action" onclick="toggleTask('${t.id}')">${t.completed?"Opne":"Ferdig"}</button></div>`}).join(""):"<div class='card empty'>🎉 Ingen gjeremål enno.</div>"}
+
+function renderPlanning(){const arr=[...data.plans].sort((a,b)=>String(a.date).localeCompare(String(b.date)));$("planTotal").textContent=`${arr.length} planlagde`;$("planList").innerHTML=arr.length?arr.map(x=>`<div class="card task-item"><div class="stat-icon">${x.type==="Dyrlege"?"🩺":x.type==="Klipping"?"✂️":x.type==="Sende lam på slakt"?"🚚":"📅"}</div><div style="flex:1"><strong>${esc(x.type)}</strong><div class="task-meta"><span class="badge">${esc(x.date)}${x.time?` · ${esc(x.time)}`:""}</span>${x.contact?`<span class="badge">${esc(x.contact)}</span>`:""}</div>${x.note?`<div class="subtle">${esc(x.note)}</div>`:""}<div class="subtle">👤 ${esc(x.user)}</div><div class="mini-actions"><button class="soft-btn" onclick="togglePlan('${x.id}')">${x.status==="Gjennomført"?"✓ Gjennomført":"Marker gjennomført"}</button><button class="danger-btn" onclick="deletePlan('${x.id}')">Slett</button></div></div><span class="badge ${x.status==="Gjennomført"?"status-done":"status-planned"}">${esc(x.status)}</span></div>`).join(""):"<div class='empty-large'>📅 Ingen avtalar registrert enno.</div>"}
+function calcDue(dateStr){if(!dateStr)return "";const d=new Date(dateStr+"T12:00:00");d.setDate(d.getDate()+147);return d.toISOString().slice(0,10)}
+function formatDateNo(dateStr){if(!dateStr)return "–";const p=String(dateStr).split("-");return p.length===3?`${p[2]}.${p[1]}.${p[0]}`:dateStr}
+function updateMatingDue(){const d=val("matingDate");const due=calcDue(d);if($("matingDuePreview"))$("matingDuePreview").innerHTML=`🍼 Antatt termin: <strong>${formatDateNo(due)}</strong> <span class="muted">(147 dagar)</span>`}
+function renderMatingSelects(){const ram=$("matingRam"),ewe=$("matingEwe"),filter=$("matingFilter");if(!ram||!ewe)return;const rams=data.animals.filter(a=>a.kjonn==="vær").sort((a,b)=>String(a.individnummer).localeCompare(String(b.individnummer)));const ewes=data.animals.filter(a=>a.kjonn==="søye").sort((a,b)=>String(a.individnummer).localeCompare(String(b.individnummer)));const oldR=ram.value,oldE=ewe.value,oldF=filter.value;ram.innerHTML='<option value="">Vel vær...</option>'+rams.map(a=>`<option value="${esc(a.id)}">${esc(a.individnummer)}${a.oyremerke?` · ${esc(a.oyremerke)}`:""}</option>`).join("");ewe.innerHTML='<option value="">Vel søye...</option>'+ewes.map(a=>`<option value="${esc(a.id)}">${esc(a.individnummer)}${a.oyremerke?` · ${esc(a.oyremerke)}`:""}</option>`).join("");filter.innerHTML='<option value="all">Alle værer</option>'+rams.map(a=>`<option value="${esc(a.id)}">🐏 Vær ${esc(a.individnummer)}</option>`).join("");if([...ram.options].some(o=>o.value===oldR))ram.value=oldR;if([...ewe.options].some(o=>o.value===oldE))ewe.value=oldE;if([...filter.options].some(o=>o.value===oldF))filter.value=oldF}
+function renderMatings(){
+  renderMatingSelects();
+  const f=val("matingFilter");
+  const arr=(f==="all"?data.matings:data.matings.filter(x=>x.ramId===f)).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const rams=new Set(arr.map(x=>x.ram)).size, ewes=new Set(arr.map(x=>x.ewe)).size, dueSoon=arr.filter(x=>{const d=new Date(String(x.due)+"T12:00:00"),n=new Date();return d>=n&&d<=new Date(n.getTime()+30*86400000)}).length;
+  $("matingSummary").innerHTML=`<div class="overview-card"><span class="overview-icon" data-icon="mating"></span><div><small>REGISTRERTE PARINGAR</small><strong>${arr.length}</strong></div></div><div class="overview-card"><span class="overview-icon" data-icon="ram"></span><div><small>VÆRER I BRUK</small><strong>${rams}</strong></div></div><div class="overview-card"><span class="overview-icon" data-icon="ewe"></span><div><small>SØYER PARA</small><strong>${ewes}</strong></div></div><div class="overview-card warn"><span class="overview-icon" data-icon="calendar"></span><div><small>TERMIN INNAN 30 DAGAR</small><strong>${dueSoon}</strong></div></div>`;
+  if(!arr.length){$("matingList").innerHTML="<div class='empty-large'>🐏 Ingen paringar registrert enno.</div>";return}
+  const byRam={};arr.forEach(x=>(byRam[x.ram]??=[]).push(x));
+  let html="";
+  for(const ram of Object.keys(byRam).sort()){const rows=byRam[ram],rounds={};rows.forEach(x=>(rounds[x.round]??=[]).push(x));html+=`<div class="ram-panel"><div class="ram-panel-head"><div class="ram-heading"><span class="ram-big" data-icon="ram"></span><div><strong>Vær ${esc(ram)}</strong><div class="muted">${rows.length} registrerte paringar · ${Object.keys(rounds).length} rundar</div></div></div><span class="badge">${new Set(rows.map(x=>x.ewe)).size} søyer</span></div>`;for(const r of Object.keys(rounds).sort((a,b)=>Number(a)-Number(b))){const rs=rounds[r].sort((a,b)=>String(a.date).localeCompare(String(b.date)));html+=`<div class="round-section"><div class="round-heading"><span>${r}. paring</span><small>${rs.length} ${rs.length===1?"søye":"søyer"}</small></div>`;for(const x of rs){html+=`<div class="mating-row"><div class="mating-ewe-icon" data-icon="ewe"></div><div class="mating-main"><strong>Søye ${esc(x.ewe)}</strong><div class="mating-meta"><span>📅 ${formatDateNo(x.date)}</span><span>👤 ${esc(x.user)}</span>${x.note?`<span>📝 ${esc(x.note)}</span>`:""}</div></div><div class="mating-due"><small>TERMIN</small><strong>${formatDateNo(x.due)}</strong></div><button class="danger-btn" onclick="deleteMating('${x.id}')">Slett</button></div>`}html+=`</div>`}html+=`</div>`}
+  $("matingList").innerHTML=html;hydrateIcons();
+}
+function renderSlaughterSelect(){const s=$("slaughterAnimal");if(!s)return;const old=s.value;const active=data.animals.filter(isActiveAnimal).sort((a,b)=>String(a.individnummer).localeCompare(String(b.individnummer)));s.innerHTML='<option value="">Vel dyr...</option>'+active.map(a=>`<option value="${esc(a.individnummer)}">${esc(a.individnummer)} · ${esc(a.kjonn||"")}${a.oyremerke?` · ${esc(a.oyremerke)}`:""}</option>`).join("");if([...s.options].some(o=>o.value===old))s.value=old}
+function renderSlaughter(){renderSlaughterSelect();const arr=[...data.slaughter].sort((a,b)=>String(a.date).localeCompare(String(b.date)));$("slaughterTotal").textContent=`${arr.filter(x=>x.status!=="Sendt").length} står i kø`;$("slaughterList").innerHTML=arr.length?arr.map(x=>`<div class="card task-item"><div class="stat-icon">🚚</div><div style="flex:1"><strong>Individ ${esc(x.animal)}</strong><div class="task-meta"><span class="badge">${esc(x.date)}</span>${x.recipient?`<span class="badge">${esc(x.recipient)}</span>`:""}</div>${x.note?`<div class="subtle">${esc(x.note)}</div>`:""}<div class="subtle">👤 ${esc(x.user)}${x.sentAt?` · sendt ${esc(new Date(x.sentAt).toLocaleString("nn-NO",{dateStyle:"short",timeStyle:"short"}))}`:""}</div><div class="mini-actions">${x.status!=="Sendt"?`<button class="soft-btn" onclick="markSlaughterSent('${x.id}')">✓ Marker sendt</button>`:""}<button class="danger-btn" onclick="deleteSlaughter('${x.id}')">Slett</button></div></div><span class="badge ${x.status==="Sendt"?"status-done":"status-planned"}">${esc(x.status)}</span></div>`).join(""):"<div class='empty-large'>🚚 Ingen dyr registrert til slakt enno.</div>"}
+async function updateEventDescription(id,desc,msg){await requireSession();const {error}=await supabaseClient.from("events").update({description:JSON.stringify(desc)}).eq("id",id);if(error)throw error;await loadAll({tables:["events"]});if(msg)toast(msg)}
+async function togglePlan(id){const x=data.plans.find(p=>p.id===id);if(!x)return;try{await updateEventDescription(id,{_kind:"plan",planType:x.type,time:x.time,contact:x.contact,note:x.note,status:x.status==="Gjennomført"?"Planlagt":"Gjennomført",user:x.user},"Avtalen er oppdatert ✓")}catch(e){errorToast("Kunne ikkje oppdatere avtalen: "+e.message)}}
+async function deletePlan(id){if(!confirm("Vil du slette avtalen?"))return;try{await requireSession();const {error}=await supabaseClient.from("events").delete().eq("id",id);if(error)throw error;await loadAll({tables:["events"]});toast("Avtalen er sletta")}catch(e){errorToast(e.message)}}
+async function deleteMating(id){
+  if(!confirm("Vil du slette paringa?"))return;
+  try{
+    await requireSession();
+    let error=null;
+    // Eldre paringar frå før matings-tabellen fekk ekte UUID-ar vart lagra i events
+    // med ein visnings-ID som startar med "legacy-". Desse må slettast frå events,
+    // ikkje sendast til matings.id som krev UUID.
+    if(String(id).startsWith("legacy-")){
+      const legacyId=String(id).slice(7);
+      const res=await supabaseClient.from("events").delete().eq("id",legacyId);
+      error=res.error;
+    }else{
+      const res=await supabaseClient.from("matings").delete().eq("id",id);
+      error=res.error;
+    }
+    if(error)throw error;
+    await loadAll({tables:String(id).startsWith("legacy-")?["events"]:["matings"]});
+    toast("Paringa er sletta 🗑️");
+  }catch(e){
+    errorToast("Kunne ikkje slette paringa: "+e.message);
+  }
+}
+async function markSlaughterSent(id){const x=data.slaughter.find(p=>p.id===id);if(!x)return;try{await updateEventDescription(id,{_kind:"slakt",animal:x.animal,recipient:x.recipient,note:x.note,status:"Sendt",sentAt:new Date().toISOString(),user:x.user},"Dyret er markert som sendt ✓")}catch(e){errorToast("Kunne ikkje oppdatere slaktstatus: "+e.message)}}
+async function deleteSlaughter(id){if(!confirm("Vil du fjerne dyret frå slaktlista?"))return;try{await requireSession();const {error}=await supabaseClient.from("events").delete().eq("id",id);if(error)throw error;await loadAll({tables:["events"]});toast("Dyret er fjerna frå slaktlista")}catch(e){errorToast(e.message)}}
+
+document.getElementById("planningForm").addEventListener("submit",async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;b.textContent="Lagrar...";try{await insertAndReload("events",{animal_id:null,date:val("planDate"),type:"Planlegging",description:JSON.stringify({_kind:"plan",planType:val("planType"),time:val("planTime"),contact:val("planContact").trim(),note:val("planNote").trim(),status:"Planlagt",user:data.currentUser})},"Avtalen er lagra ✓","planning");e.target.reset();$("planDate").value=today()}catch(err){errorToast("Kunne ikkje lagre avtalen: "+err.message)}finally{b.disabled=false;b.textContent="＋ Lagre avtale"}});
+document.getElementById("matingForm").addEventListener("submit",async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;b.textContent="Lagrar...";try{await requireSession();const ramId=val("matingRam"),eweId=val("matingEwe"),round=Number(val("matingRound")||1),date=val("matingDate"),due=calcDue(date);const ramAnimal=data.animals.find(a=>a.id===ramId&&a.kjonn==="vær"),eweAnimal=data.animals.find(a=>a.id===eweId&&a.kjonn==="søye");if(!ramAnimal)throw new Error("Fann ikkje væren.");if(!eweAnimal)throw new Error("Fann ikkje søya.");if(!date)throw new Error("Vel paringsdato.");const {error}=await supabaseClient.from("matings").insert({ram_id:ramAnimal.id,ewe_id:eweAnimal.id,mating_date:date,mating_round:round,expected_due_date:due,note:val("matingNote").trim(),user_id:currentSession.user.id,user_name:data.currentUser});if(error)throw error;await loadAll({tables:["matings"]});toast(`Paring ${round}. er registrert 🐏`);e.target.reset();$("matingDate").value=today();updateMatingDue();$("matingRound").value="1";updateMatingDue()}catch(err){errorToast("Kunne ikkje lagre paringa: "+err.message)}finally{b.disabled=false;b.textContent="🐏 Registrer paring"}});
+$("matingDate").addEventListener("input",updateMatingDue);
+document.getElementById("slaughterForm").addEventListener("submit",async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;b.textContent="Lagrar...";try{const animalText=val("slaughterAnimal").trim(),animal=data.animals.find(a=>a.individnummer===animalText);if(!animal)throw new Error("Fann ikkje dyret.");if(data.slaughter.some(x=>x.animal===animalText&&x.status!=="Sendt"))throw new Error("Dette dyret ligg allereie i slaktlista.");await insertAndReload("events",{animal_id:animal.id,date:val("slaughterDate"),type:"Slakt",description:JSON.stringify({_kind:"slakt",animal:animalText,recipient:val("slaughterRecipient").trim(),note:val("slaughterNote").trim(),status:"Planlagt",sentAt:"",user:data.currentUser})},"Dyret er lagt til slaktlista 🚚","slaughter");e.target.reset();$("slaughterDate").value=today()}catch(err){errorToast("Kunne ikkje lagre dyret: "+err.message)}finally{b.disabled=false;b.textContent="＋ Legg dyr til slaktlista"}});
+
+function renderActivity(){const arr=[...data.logs.map(x=>({date:x.date,type:x.type,user:x.user,note:x.note,icon:"stethoscope"})),...data.lambings.map(x=>({date:x.date,type:"Lamming",user:x.user,note:`${x.count} lam · mor ${x.mother}`,icon:"lamb"})),...data.plans.map(x=>({date:x.date,type:x.type,user:x.user,note:x.contact||x.note,icon:"calendar"})),...data.matings.map(x=>({date:x.date,type:"Paring",user:x.user,note:`Vær ${x.ram} → søye ${x.ewe}`,icon:"ram"})),...data.slaughter.map(x=>({date:x.date,type:"Til slakt",user:x.user,note:`Individ ${x.animal}`,icon:"truck"}))].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,7);$("activityFeed").innerHTML=arr.length?arr.map(x=>`<div class="activity-item"><div class="activity-icon" data-icon="${x.icon}"></div><div><strong>${esc(x.type)}</strong><div class="subtle">${esc(x.date)} · ${esc(x.user)}</div><div>${esc(x.note||"")}</div></div></div>`).join(""):"<div class='empty'>Her kjem siste aktivitet frå garden.</div>"}
+function updateDashboard(){const active=data.animals.filter(isActiveAnimal);if($("totalAnimals"))$("totalAnimals").textContent=active.length;if($("ewes"))$("ewes").textContent=active.filter(x=>x.kjonn==="søye").length;if($("rams"))$("rams").textContent=active.filter(x=>x.kjonn==="vær").length;if($("lambs"))$("lambs").textContent=active.filter(x=>x.kjonn==="lam").length;const open=data.tasks.filter(x=>!x.completed).slice(0,3);if($("todayTasks"))$("todayTasks").innerHTML=open.length?open.map(t=>`<div class="row"><div><strong>${esc(t.title)}</strong>${taskMeta(t).due?`<div class="subtle">Frist ${esc(taskMeta(t).due)}</div>`:""}</div><button class="link" onclick="toggleTask('${t.id}')">Ferdig</button></div>`).join(""):"<div class='empty'>🎉 Ingen opne gjeremål.</div>"
+  const upcoming=[...data.matings].filter(x=>x.due).sort((a,b)=>String(a.due).localeCompare(String(b.due)))[0];
+  if($("dashNextLambingName"))$("dashNextLambingName").textContent=upcoming?`Søye ${animalNumber(upcoming.eweId)||upcoming.ewe||"–"}`:"Ingen termin i oversikta";
+  if($("dashNextLambingDate"))$("dashNextLambingDate").textContent=upcoming?formatDateNo(upcoming.due):"–";
+  if($("dashAdoptionCount"))$("dashAdoptionCount").textContent=String(data.adoptions?.length||0);
+}
+function renderAll(){hydrateIcons();updateUserUI();updateDashboard();renderAnimals();renderLambMotherSelect();renderLogs();renderTasks();renderLambs();renderPlanning();renderMatings();renderSlaughter();renderAdoptions();renderActivity();$("morePlanCount").textContent=`${data.plans.filter(x=>x.status!=="Gjennomført").length} planlagde`;$("moreMatingCount").textContent=`${data.matings.length} paringar`;$("moreSlaughterCount").textContent=`${data.slaughter.filter(x=>x.status!=="Sendt").length} dyr`;if($("moreAdoptionCount"))$("moreAdoptionCount").textContent=`${data.adoptions.length} adopsjon${data.adoptions.length===1?"":"ar"}`;setActiveNav(document.querySelector(".page.active")?.id||"dashboard");hydrateIcons()}
+
+$("profileButton").onclick=openAccount;$("accountLogoutButton").onclick=async()=>{closeAccount();const {error}=await supabaseClient.auth.signOut({scope:"local"});if(error){errorToast(error.message);return}currentSession=null;data.currentUser="";setAppVisible(false)};
+$("authForm").addEventListener("submit",async e=>{e.preventDefault();clearAuthError();const b=e.submitter;b.disabled=true;try{const {data:r,error}=await supabaseClient.auth.signInWithPassword({email:val("authEmail").trim(),password:val("authPassword")});if(error)throw error;$("authPassword").value="";await handleAuthSession(r.session)}catch(err){showAuthError("Kunne ikkje logge inn: "+err.message)}finally{b.disabled=false}});
+supabaseClient.auth.onAuthStateChange((event,session)=>{setTimeout(()=>{if(event==="SIGNED_OUT"){currentSession=null;data.currentUser="";setAppVisible(false)}else if((event==="SIGNED_IN"||event==="INITIAL_SESSION")&&session){handleAuthSession(session)}else if(event==="TOKEN_REFRESHED"&&session){currentSession=session;data.currentUser=displayNameForUser(session.user);updateUserUI();updateAccountUI()}},0)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeAccount();closeAnimalModal()}});
+$("logDate").value=today();$("lambDate").value=today();renderLambMotherSelect();$("planDate").value=today();$("matingDate").value=today();updateMatingDue();$("slaughterDate").value=today();$("today").textContent=new Intl.DateTimeFormat("nn-NO",{dateStyle:"medium"}).format(new Date());renderLambFields();setAppVisible(false);
+(async()=>{try{const {data:{session}}=await supabaseClient.auth.getSession();await handleAuthSession(session)}catch(e){errorToast(e.message)}})();
+if("serviceWorker" in navigator){let refreshingAfterWorkerUpdate=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!refreshingAfterWorkerUpdate&&navigator.serviceWorker.controller){refreshingAfterWorkerUpdate=true;window.location.reload()}});window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").then(registration=>registration.update()).catch(()=>{}))}
+</script>
+<script src="./v3.js?v=supabase-20261009"></script>
+<script src="./smart.js"></script>
+</body>
+</html>
+
+

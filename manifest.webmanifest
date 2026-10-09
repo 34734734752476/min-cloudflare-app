@@ -1,0 +1,10 @@
+{
+  "name":"Sundsteigen Gård",
+  "short_name":"Sundsteigen",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#f1efe6",
+  "theme_color":"#0e3325",
+  "description":"Smart driftsapp for Sundsteigen Gård",
+  "icons":[]
+}
