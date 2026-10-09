@@ -1354,3 +1354,684 @@ body.theme-dark input:not([type=checkbox]):not([type=radio]):not([type=range]):n
 body.theme-dark .account-user{background:#223329;border-color:#3b5141}
 body.theme-dark .auth-screen{background:linear-gradient(135deg,#081e14,#173e2d 50%,#252c20)}
 body.theme-dark .auth-box{background:linear-gradient(145deg,#223329,#19271f);border-color:#3b5141}
+
+/* ================================================================
+   GLASSMORPHISM & 3D DEPTH — modern futuristic refresh, Oct 2026
+   Layered on top of existing styles. No data/logic changes.
+   ================================================================ */
+:root{
+  --glass-bg:rgba(255,253,247,.72);
+  --glass-blur:blur(20px) saturate(1.4);
+  --glass-border:rgba(255,255,255,.55);
+  --glass-shadow:0 4px 8px rgba(20,48,32,.04),0 20px 48px rgba(20,48,32,.09),inset 0 1px 0 rgba(255,255,255,.6);
+  --glass-shadow-hover:0 6px 12px rgba(20,48,32,.06),0 28px 56px rgba(20,48,32,.13),inset 0 1px 0 rgba(255,255,255,.65);
+  --deep-shadow:0 8px 16px rgba(20,48,32,.07),0 30px 64px rgba(20,48,32,.12),inset 0 1px 0 rgba(255,255,255,.5);
+  --deep-shadow-hover:0 12px 20px rgba(20,48,32,.08),0 40px 72px rgba(20,48,32,.17),inset 0 1px 0 rgba(255,255,255,.55);
+  --lift-transform:perspective(1200px) translateY(-3px) rotateX(.15deg);
+  --lift-transform-strong:perspective(1200px) translateY(-5px) scale(1.012);
+  --press-transform:perspective(1200px) translateY(1px) scale(.985);
+}
+
+/* Glassmorphism on cards and panels */
+.card,.dash-card,.module-card,.settings-card,.v3-kpi,.overview-card,.smart-card,.ops-card,.inventory-row,.animal-item,.log-item,.lamb-item,.mating-row,.adoption-item,.compact-row,.health-entry{
+  background:var(--glass-bg)!important;
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+}
+
+/* Top bar becomes a true glass surface */
+.topbar{
+  background:rgba(250,249,243,.68)!important;
+  backdrop-filter:blur(22px) saturate(1.5)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(1.5)!important;
+  border-bottom:1px solid rgba(255,255,255,.4)!important;
+  box-shadow:0 4px 10px rgba(27,52,36,.05),0 16px 32px rgba(27,52,36,.08)!important;
+}
+
+/* Sidebar nav gets glass overlay */
+.bottom-nav{
+  background:radial-gradient(ellipse at 0% 0%,rgba(213,181,100,.15),transparent 36%),linear-gradient(165deg,rgba(13,48,35,.96) 0%,rgba(18,68,49,.93) 48%,rgba(11,43,32,.96) 100%)!important;
+  backdrop-filter:blur(24px) saturate(1.3);
+  -webkit-backdrop-filter:blur(24px) saturate(1.3);
+  border-right:1px solid rgba(255,255,255,.08)!important;
+}
+
+/* Mobile bottom nav: glass surface */
+.mobile-quick-nav,body.mobile-layout .mobile-quick-nav{
+  background:rgba(250,249,243,.82)!important;
+  backdrop-filter:blur(24px) saturate(1.5)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(1.5)!important;
+  border-top:1px solid rgba(255,255,255,.45)!important;
+  box-shadow:0 -8px 28px rgba(18,45,28,.1)!important;
+}
+
+/* Modals: glass sheets */
+.modal-sheet,.search-sheet,.account-sheet{
+  background:var(--glass-bg)!important;
+  backdrop-filter:var(--glass-blur)!important;
+  -webkit-backdrop-filter:var(--glass-blur)!important;
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--deep-shadow)!important;
+}
+
+/* Auth screen glass card */
+.auth-box{
+  background:rgba(255,253,247,.85)!important;
+  backdrop-filter:blur(28px) saturate(1.4)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(1.4)!important;
+  border:1px solid rgba(255,255,255,.5)!important;
+  box-shadow:0 30px 80px rgba(5,26,16,.3),inset 0 1px 0 rgba(255,255,255,.5)!important;
+}
+
+/* Hero: deeper glass with richer gradient */
+.home-welcome{
+  background:linear-gradient(105deg,rgba(9,43,30,.96) 0%,rgba(13,58,40,.88) 40%,rgba(17,57,38,.42) 100%),url("farm-banner.jpg") center 75%/cover no-repeat!important;
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  box-shadow:0 6px 14px rgba(10,40,25,.14),0 28px 56px rgba(10,40,25,.2),inset 0 1px 0 rgba(255,255,255,.15)!important;
+}
+
+/* Smart panel card: glass */
+.smart-panel>.card{
+  background:var(--glass-bg)!important;
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border)!important;
+}
+
+/* Home search bar: glass */
+.home-animal-search{
+  background:var(--glass-bg)!important;
+  backdrop-filter:blur(18px) saturate(1.3);
+  -webkit-backdrop-filter:blur(18px) saturate(1.3);
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+}
+
+/* Section notes & hints: glass */
+.section-note,.hint,.setting-note{
+  background:rgba(248,246,237,.6)!important;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.35)!important;
+}
+
+/* Sync status: glass */
+.sync-status{
+  background:rgba(255,248,229,.72)!important;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(213,187,119,.3)!important;
+}
+
+/* Buttons: deeper 3D gradient with enhanced shadow */
+.primary,.auth-button{
+  background:linear-gradient(145deg,#286d4d 0%,#1a573a 50%,#0e3f28 100%)!important;
+  box-shadow:0 3px 6px rgba(12,50,31,.16),0 10px 20px rgba(21,83,54,.18),inset 0 1px 0 rgba(255,255,255,.2),inset 0 -2px 4px rgba(0,0,0,.08)!important;
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease!important;
+}
+.primary:hover,.auth-button:hover{
+  background:linear-gradient(145deg,#2e7a56 0%,#1f6342 50%,#124a30 100%)!important;
+  transform:var(--lift-transform)!important;
+  box-shadow:0 6px 10px rgba(12,50,31,.14),0 16px 28px rgba(21,83,54,.22),inset 0 1px 0 rgba(255,255,255,.22),inset 0 -2px 4px rgba(0,0,0,.06)!important;
+}
+.secondary,.soft-btn{
+  background:linear-gradient(145deg,rgba(255,254,250,.9),rgba(243,245,236,.8))!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(216,225,214,.7)!important;
+  box-shadow:0 2px 5px rgba(15,48,31,.05),inset 0 1px 0 rgba(255,255,255,.6)!important;
+  transition:transform .18s ease,box-shadow .18s ease!important;
+}
+.secondary:hover,.soft-btn:hover{
+  transform:var(--lift-transform)!important;
+  box-shadow:0 5px 12px rgba(15,48,31,.08),inset 0 1px 0 rgba(255,255,255,.55)!important;
+}
+
+/* Top action buttons: glass */
+.top-action,.more-btn,.profile{
+  background:rgba(255,254,251,.72)!important;
+  backdrop-filter:blur(14px) saturate(1.2);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);
+  border:1px solid rgba(216,224,213,.5)!important;
+  box-shadow:0 2px 5px rgba(23,54,36,.04),inset 0 1px 0 rgba(255,255,255,.5)!important;
+  transition:transform .18s ease,box-shadow .18s ease!important;
+}
+.top-action:hover,.more-btn:hover,.profile:hover{
+  transform:var(--lift-transform)!important;
+  box-shadow:0 6px 14px rgba(23,54,36,.1),inset 0 1px 0 rgba(255,255,255,.45)!important;
+}
+
+/* Home action primary: richer 3D */
+.home-action-primary{
+  background:radial-gradient(ellipse at 93% 0%,rgba(226,196,117,.2),transparent 38%),linear-gradient(110deg,#216748 0%,#19593d 50%,#103a2a 100%)!important;
+  box-shadow:0 5px 10px rgba(12,47,30,.16),0 20px 36px rgba(12,47,30,.18),inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 6px rgba(0,0,0,.1)!important;
+  transition:transform .2s ease,box-shadow .2s ease!important;
+}
+.home-action-primary:hover{
+  transform:var(--lift-transform-strong)!important;
+  box-shadow:0 8px 14px rgba(12,47,30,.15),0 28px 44px rgba(12,47,30,.24),inset 0 1px 0 rgba(255,255,255,.2),inset 0 -2px 6px rgba(0,0,0,.08)!important;
+}
+
+/* Shortcut tiles: glass + deeper hover */
+.home-shortcut-grid button{
+  background:var(--glass-bg)!important;
+  backdrop-filter:blur(16px) saturate(1.3);
+  -webkit-backdrop-filter:blur(16px) saturate(1.3);
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+  transition:transform .22s cubic-bezier(.34,1.36,.64,1),box-shadow .22s ease,border-color .22s ease!important;
+}
+.home-shortcut-grid button:hover{
+  transform:var(--lift-transform-strong)!important;
+  box-shadow:var(--glass-shadow-hover)!important;
+}
+
+/* Herd counts: glass + pop */
+.home-herd-counts button{
+  background:rgba(255,254,249,.7)!important;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(220,228,216,.5)!important;
+  transition:transform .2s cubic-bezier(.34,1.36,.64,1),box-shadow .2s ease!important;
+}
+.home-herd-counts button:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 8px 16px rgba(20,50,32,.1)!important;
+}
+
+/* Module cards: glass + enhanced hover */
+.module-card{
+  background:var(--glass-bg)!important;
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+  transition:transform .22s cubic-bezier(.34,1.36,.64,1),box-shadow .22s ease,border-color .22s ease!important;
+}
+.module-card:hover{
+  transform:var(--lift-transform-strong)!important;
+  box-shadow:var(--glass-shadow-hover)!important;
+}
+
+/* Dash KPIs: glass */
+.dash-kpi{
+  background:var(--glass-bg)!important;
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+  transition:transform .22s cubic-bezier(.34,1.36,.64,1),box-shadow .22s ease!important;
+}
+
+/* V3 KPIs: glass */
+.v3-kpi{
+  background:var(--glass-bg)!important;
+  backdrop-filter:blur(16px) saturate(1.3);
+  -webkit-backdrop-filter:blur(16px) saturate(1.3);
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+}
+
+/* Overview cards: glass */
+.overview-card{
+  background:var(--glass-bg)!important;
+  backdrop-filter:blur(14px) saturate(1.3);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+}
+
+/* Input fields: subtle glass */
+.search,input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=hidden]),select,textarea{
+  background:rgba(255,254,251,.65)!important;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(214,223,212,.6)!important;
+  box-shadow:inset 0 1px 3px rgba(27,51,34,.05),0 1px 0 rgba(255,255,255,.5)!important;
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease!important;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:#7ca68a!important;
+  box-shadow:0 0 0 4px rgba(46,117,75,.14),inset 0 1px 3px rgba(27,51,34,.04)!important;
+  background:rgba(255,254,251,.85)!important;
+}
+
+/* Animal items, log items, lamb items: glass + enhanced hover */
+.animal-item,.log-item,.lamb-item,.mating-row,.adoption-item,.inventory-row,.health-entry,.task-item{
+  background:var(--glass-bg)!important;
+  backdrop-filter:blur(16px) saturate(1.3);
+  -webkit-backdrop-filter:blur(16px) saturate(1.3);
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important;
+}
+
+/* Hover lift effects on interactive cards (desktop) */
+@media(hover:hover) and (pointer:fine){
+  .animal-item:hover,.log-item:hover,.lamb-item:hover,.mating-row:hover,.adoption-item:hover,.inventory-row:hover,.health-entry:hover{
+    transform:var(--lift-transform)!important;
+    box-shadow:var(--glass-shadow-hover)!important;
+    border-color:rgba(185,205,189,.6)!important;
+  }
+  .dash-kpi:hover,.overview-card:hover,.v3-kpi:hover{
+    transform:var(--lift-transform)!important;
+    box-shadow:var(--glass-shadow-hover)!important;
+  }
+  .smart-card:hover{
+    transform:var(--lift-transform)!important;
+    box-shadow:var(--glass-shadow-hover)!important;
+  }
+  .home-next-lambing:hover{
+    transform:var(--lift-transform-strong)!important;
+    box-shadow:0 10px 18px rgba(68,52,19,.1),0 24px 40px rgba(68,52,19,.15)!important;
+  }
+  .home-herd-total:hover{
+    transform:var(--lift-transform)!important;
+    box-shadow:0 8px 16px rgba(20,50,32,.1)!important;
+  }
+  .quick-tile:hover{
+    transform:var(--lift-transform)!important;
+    box-shadow:var(--glass-shadow-hover)!important;
+  }
+  .drift-links button:hover,.home-expand .drift-links button:hover{
+    transform:translateY(-2px)!important;
+    box-shadow:0 6px 14px rgba(16,49,30,.08)!important;
+  }
+}
+
+/* Button press effect: deeper */
+button:active:not(:disabled){
+  transform:var(--press-transform)!important;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.12)!important;
+}
+
+/* Page transition: smoother with glass feel */
+.page.active{
+  animation:pageInGlass .3s cubic-bezier(.34,1.36,.64,1)!important;
+}
+@keyframes pageInGlass{
+  from{opacity:0;transform:translateY(12px) scale(.99)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* Badge: glass effect */
+.badge,.group-badge,.status-pill,.lamb-code-badge,.round-chip,.section-badge{
+  background:rgba(228,238,229,.75)!important;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.3)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5)!important;
+}
+.badge.gold,.gold,.status-pill.warn{
+  background:rgba(251,242,220,.75)!important;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.badge.blue{
+  background:rgba(237,243,247,.75)!important;
+}
+.status-pill.red,.badge.red{
+  background:rgba(249,233,228,.75)!important;
+}
+
+/* Toast: glass */
+.toast{
+  background:rgba(14,51,37,.92)!important;
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  border:1px solid rgba(255,255,255,.1)!important;
+  box-shadow:0 10px 30px rgba(14,36,23,.25),inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+
+/* Modal backdrop: enhanced blur */
+.modal-backdrop,.account-backdrop{
+  background:rgba(15,31,22,.4)!important;
+  backdrop-filter:blur(8px)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+}
+
+/* Account sheet: glass */
+.account-sheet{
+  background:var(--glass-bg)!important;
+  backdrop-filter:var(--glass-blur)!important;
+  -webkit-backdrop-filter:var(--glass-blur)!important;
+}
+
+/* Account user: glass */
+.account-user{
+  background:rgba(241,244,235,.6)!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(219,227,214,.5)!important;
+}
+
+/* Scrollbar styling for modern feel */
+.bottom-nav::-webkit-scrollbar{width:5px}
+.bottom-nav::-webkit-scrollbar-track{background:transparent}
+.bottom-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px}
+.modal-sheet::-webkit-scrollbar,.search-sheet::-webkit-scrollbar{width:6px}
+.modal-sheet::-webkit-scrollbar-thumb,.search-sheet::-webkit-scrollbar-thumb{background:rgba(20,48,32,.15);border-radius:99px}
+
+/* Sidebar active button: glass pop */
+.bottom-nav button.active:not(.sidebar-brand){
+  background:linear-gradient(100deg,rgba(255,253,245,.95),rgba(234,240,228,.88))!important;
+  box-shadow:0 5px 14px rgba(6,27,16,.25),inset 0 1px 0 rgba(255,255,255,.5),0 0 0 1px rgba(255,255,255,.1)!important;
+}
+
+/* Sidebar brand: glass */
+.sidebar-brand{
+  background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.04))!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.15)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 8px 20px rgba(5,25,15,.18)!important;
+}
+
+/* Home next lambing: glass */
+.home-next-lambing{
+  background:radial-gradient(ellipse at 100% 0%,rgba(246,233,199,.5),transparent 54%),linear-gradient(145deg,rgba(255,249,233,.7),rgba(251,244,226,.65))!important;
+  backdrop-filter:blur(16px) saturate(1.3);
+  -webkit-backdrop-filter:blur(16px) saturate(1.3);
+  border:1px solid rgba(231,215,172,.4)!important;
+  box-shadow:var(--glass-shadow)!important;
+  transition:transform .22s cubic-bezier(.34,1.36,.64,1),box-shadow .22s ease!important;
+}
+
+/* Home herd total: glass */
+.home-herd-total{
+  background:rgba(237,243,232,.55)!important;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(220,230,217,.4)!important;
+  transition:transform .2s ease,box-shadow .2s ease!important;
+}
+
+/* Smart cards: glass + colored top accent */
+.smart-card{
+  background:var(--glass-bg)!important;
+  backdrop-filter:blur(18px) saturate(1.3);
+  -webkit-backdrop-filter:blur(18px) saturate(1.3);
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+  transition:transform .22s cubic-bezier(.34,1.36,.64,1),box-shadow .22s ease!important;
+}
+
+/* Inventory tabs: glass */
+.inventory-tabs{
+  background:rgba(237,242,237,.5)!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.3)!important;
+}
+.inventory-tab.active{
+  background:rgba(255,253,247,.85)!important;
+  box-shadow:0 2px 8px rgba(23,75,56,.1),inset 0 1px 0 rgba(255,255,255,.5)!important;
+}
+
+/* Dash head: glass */
+.dash-head{
+  background:radial-gradient(ellipse at 100% 0%,rgba(255,255,255,.5),transparent 48%),linear-gradient(130deg,rgba(237,245,239,.7),rgba(247,245,233,.6))!important;
+  backdrop-filter:blur(16px) saturate(1.3);
+  -webkit-backdrop-filter:blur(16px) saturate(1.3);
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+}
+
+/* Relation chips: glass */
+.relation-chip{
+  background:rgba(245,249,245,.6)!important;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(220,232,221,.5)!important;
+  transition:transform .15s ease,box-shadow .15s ease!important;
+}
+.relation-chip:hover{
+  transform:translateY(-1px)!important;
+  box-shadow:0 4px 10px rgba(20,50,32,.08)!important;
+}
+
+/* Profile fields: glass */
+.profile-field,.profile-family>div{
+  background:rgba(248,246,237,.5)!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.3)!important;
+}
+
+/* Profile note: glass */
+.profile-note{
+  background:rgba(248,246,237,.5)!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.3)!important;
+}
+
+/* Sync dot: glow */
+.sync-dot{
+  box-shadow:0 0 0 4px rgba(88,164,117,.15),0 0 8px rgba(88,164,117,.3)!important;
+}
+
+/* Breeding stars: subtle glow */
+.breeding-stars{
+  text-shadow:0 0 8px rgba(177,132,47,.2)!important;
+}
+
+/* Stat fill: richer gradient */
+.stat-fill{
+  background:linear-gradient(90deg,#286d4d,#d4ae5f)!important;
+  box-shadow:0 0 8px rgba(40,109,77,.15)!important;
+}
+
+/* Auth logo: glass */
+.auth-logo:before{
+  background:linear-gradient(145deg,rgba(246,240,217,.85),rgba(222,234,220,.8))!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(223,228,213,.5)!important;
+}
+
+/* Mobile quick nav active: glass pop */
+body.mobile-layout .mobile-quick-nav button.active,.mobile-quick-nav button.active{
+  background:rgba(228,238,229,.8)!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 2px 8px rgba(23,75,56,.08)!important;
+}
+
+/* Lamb count control buttons: glass */
+.lamb-count-control button{
+  background:rgba(228,238,229,.7)!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(220,232,221,.5)!important;
+  transition:transform .15s ease,box-shadow .15s ease!important;
+}
+.lamb-count-control button:hover{
+  transform:translateY(-1px)!important;
+  box-shadow:0 4px 10px rgba(20,50,32,.08)!important;
+}
+
+/* Lamb extra fields: glass */
+.lamb-extra-fields{
+  background:rgba(248,246,237,.5)!important;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.3)!important;
+}
+
+/* Lamb birth card: glass */
+.lamb-birth-card{
+  background:rgba(255,254,251,.6)!important;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(219,226,214,.5)!important;
+}
+
+/* Breeding edit card: glass */
+.breeding-edit-card{
+  background:rgba(248,246,237,.5)!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.3)!important;
+}
+
+/* Ewe breeding row: glass */
+.ewe-breeding-row{
+  background:var(--glass-bg)!important;
+  backdrop-filter:blur(14px) saturate(1.3);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+}
+
+/* Global search box: glass */
+.global-search-box{
+  background:rgba(248,246,237,.55)!important;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.3)!important;
+}
+
+/* Global result: glass */
+.global-result{
+  background:rgba(255,253,247,.6)!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.3)!important;
+  transition:transform .15s ease,box-shadow .15s ease,background .15s ease!important;
+}
+.global-result:hover{
+  transform:translateY(-1px)!important;
+  background:rgba(228,238,229,.65)!important;
+  box-shadow:0 4px 12px rgba(20,50,32,.08)!important;
+}
+
+/* Quantity buttons: glass */
+.quantity-btn{
+  background:rgba(255,254,251,.6)!important;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(220,232,221,.5)!important;
+  transition:transform .15s ease!important;
+}
+.quantity-btn:hover{
+  transform:translateY(-1px)!important;
+}
+
+/* Footer credit: subtle */
+.footer-credit{
+  color:rgba(123,136,125,.8)!important;
+}
+
+/* Animal ID button: enhanced underline */
+.animal-id-button{
+  transition:color .15s ease,transform .15s ease!important;
+}
+.animal-id-button:hover{
+  transform:translateY(-1px)!important;
+}
+
+/* ================================================================
+   Dark mode glass adjustments
+   ================================================================ */
+body.theme-dark{
+  --glass-bg:rgba(25,39,31,.72);
+  --glass-blur:blur(20px) saturate(1.2);
+  --glass-border:rgba(255,255,255,.06);
+  --glass-shadow:0 4px 8px rgba(0,0,0,.12),0 20px 48px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.03);
+  --glass-shadow-hover:0 6px 12px rgba(0,0,0,.15),0 28px 56px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.04);
+}
+body.theme-dark .topbar{
+  background:rgba(21,35,26,.72)!important;
+  backdrop-filter:blur(22px) saturate(1.3)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(1.3)!important;
+}
+body.theme-dark .mobile-quick-nav,body.theme-dark body.mobile-layout .mobile-quick-nav{
+  background:rgba(24,35,28,.82)!important;
+}
+body.theme-dark .auth-box{
+  background:rgba(25,39,31,.85)!important;
+}
+body.theme-dark .home-animal-search,
+body.theme-dark .section-note,body.theme-dark .hint,body.theme-dark .setting-note{
+  background:rgba(32,48,39,.6)!important;
+}
+body.theme-dark .badge,body.theme-dark .group-badge,body.theme-dark .status-pill{
+  background:rgba(43,64,49,.75)!important;
+}
+body.theme-dark .badge.gold,body.theme-dark .gold,body.theme-dark .status-pill.warn{
+  background:rgba(58,50,31,.75)!important;
+}
+body.theme-dark .badge.blue{
+  background:rgba(40,55,70,.75)!important;
+}
+body.theme-dark .status-pill.red,body.theme-dark .badge.red{
+  background:rgba(61,40,36,.75)!important;
+}
+body.theme-dark .toast{
+  background:rgba(10,36,24,.92)!important;
+}
+body.theme-dark .inventory-tabs{
+  background:rgba(32,48,39,.5)!important;
+}
+body.theme-dark .inventory-tab.active{
+  background:rgba(43,59,48,.85)!important;
+}
+body.theme-dark .home-next-lambing{
+  background:radial-gradient(ellipse at 100% 0%,rgba(167,132,57,.12),transparent 54%),linear-gradient(145deg,rgba(48,45,32,.7),rgba(37,39,31,.65))!important;
+  border:1px solid rgba(94,82,50,.3)!important;
+}
+body.theme-dark .home-herd-total{
+  background:rgba(43,64,49,.5)!important;
+}
+body.theme-dark .home-herd-counts button{
+  background:rgba(38,56,44,.6)!important;
+}
+body.theme-dark .home-shortcut-grid button{
+  background:rgba(38,56,44,.6)!important;
+}
+body.theme-dark .lamb-count-control button{
+  background:rgba(43,64,49,.6)!important;
+}
+body.theme-dark .lamb-extra-fields,
+body.theme-dark .lamb-birth-card,
+body.theme-dark .breeding-edit-card{
+  background:rgba(32,48,39,.5)!important;
+}
+body.theme-dark .profile-field,body.theme-dark .profile-family>div,body.theme-dark .profile-note{
+  background:rgba(32,48,39,.5)!important;
+}
+body.theme-dark .global-search-box{
+  background:rgba(32,48,39,.55)!important;
+}
+body.theme-dark .global-result{
+  background:rgba(38,56,44,.6)!important;
+}
+body.theme-dark .global-result:hover{
+  background:rgba(43,64,49,.65)!important;
+}
+body.theme-dark .relation-chip{
+  background:rgba(38,56,44,.6)!important;
+}
+body.theme-dark .account-user{
+  background:rgba(34,51,41,.5)!important;
+}
+
+/* ================================================================
+   Reduced motion: disable 3D transforms
+   ================================================================ */
+html.reduce-motion *,body.reduce-motion *{
+  --lift-transform:none!important;
+  --lift-transform-strong:none!important;
+  --press-transform:translateY(0) scale(1)!important;
+}
+@media(prefers-reduced-motion:reduce){
+  :root{
+    --lift-transform:none!important;
+    --lift-transform-strong:none!important;
+    --press-transform:translateY(0) scale(1)!important;
+  }
+}
